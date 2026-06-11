@@ -1,0 +1,2442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terraria — Class Compendium</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Exo+2:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+:root {
+  --void:     #06060e;
+  --cave:     #0e0d1a;
+  --panel:    #161425;
+  --border:   #242140;
+  --melee:    #ff6b35;
+  --melee-dim:rgba(255,107,53,0.12);
+  --melee-glow:rgba(255,107,53,0.5);
+  --ranger:   #3fdc6e;
+  --ranger-dim:rgba(63,220,110,0.12);
+  --ranger-glow:rgba(63,220,110,0.5);
+  --mage:     #9d6eff;
+  --mage-dim: rgba(157,110,255,0.12);
+  --mage-glow:rgba(157,110,255,0.5);
+  --summoner: #ffbe00;
+  --summoner-dim:rgba(255,190,0,0.12);
+  --summoner-glow:rgba(255,190,0,0.5);
+  --gold:   #ffd700;
+  --text:   #e4dcff;
+  --muted:  #6e6990;
+  --wiki: "https://terraria.wiki.gg/wiki/Special:FilePath/";
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--void);color:var(--text);font-family:'Exo 2',sans-serif;overflow-x:hidden;}
+
+/* scanlines */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
+  background:repeating-linear-gradient(to bottom,transparent 0,transparent 3px,rgba(0,0,0,0.05) 3px,rgba(0,0,0,0.05) 4px);}
+
+/* ── NAV ── */
+.site-nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:.9rem 2rem;
+  display:flex;justify-content:space-between;align-items:center;
+  background:rgba(6,6,14,.88);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);transition:background .3s;}
+.nav-logo{font-family:'Press Start 2P',monospace;font-size:.7rem;color:var(--gold);text-decoration:none;}
+.nav-links{display:flex;gap:1.6rem;list-style:none;}
+.nav-links a{font-family:'Press Start 2P',monospace;font-size:.45rem;color:var(--muted);
+  text-decoration:none;transition:color .2s;letter-spacing:.06em;}
+.nav-links a:hover{color:var(--gold);}
+
+/* ── HERO ── */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.p-layer{position:absolute;inset:0;will-change:transform;}
+#p-stars{
+  background-image:
+    radial-gradient(1px 1px at 8% 12%,#fff,transparent),
+    radial-gradient(1.5px 1.5px at 22% 35%,#c8b8ff,transparent),
+    radial-gradient(1px 1px at 38% 8%,#fff,transparent),
+    radial-gradient(1px 1px at 51% 55%,#fff,transparent),
+    radial-gradient(2px 2px at 64% 20%,#ffd700,transparent),
+    radial-gradient(1px 1px at 73% 70%,#a78bfa,transparent),
+    radial-gradient(1.5px 1.5px at 84% 15%,#fff,transparent),
+    radial-gradient(1px 1px at 90% 82%,#fff,transparent),
+    radial-gradient(1px 1px at 15% 72%,#c8b8ff,transparent),
+    radial-gradient(1px 1px at 45% 88%,#fff,transparent),
+    radial-gradient(2px 2px at 5% 45%,#ffd700,transparent),
+    radial-gradient(1px 1px at 96% 40%,#fff,transparent);
+  animation:twinkle 5s ease-in-out infinite alternate;}
+@keyframes twinkle{0%{opacity:.6}100%{opacity:1}}
+#p-nebula{background:radial-gradient(ellipse 70% 60% at 30% 40%,rgba(90,50,180,.18),transparent),
+  radial-gradient(ellipse 50% 40% at 75% 60%,rgba(255,107,53,.1),transparent);}
+/* cave tilt wrapper — holds perspective so rotateX works in 3D */
+#p-ground-wrap{
+  position:absolute;bottom:0;left:0;right:0;height:420px;
+  perspective:600px;perspective-origin:50% 100%;
+  pointer-events:none;overflow:visible;
+}
+#p-ground{
+  position:absolute;bottom:0;left:-10%;width:120%;height:420px;
+  transform-origin:50% 100%;           /* rotate around the bottom edge */
+  will-change:transform;
+  background:
+    linear-gradient(to top,#071007 0%,#0d160d 35%,transparent 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1440' height='420'%3E%3Crect width='1440' height='420' fill='%23080d08'/%3E%3C!-- back layer darker hills --%3E%3Crect x='0'    y='300' width='60'  height='120' fill='%230a100a'/%3E%3Crect x='60'   y='270' width='60'  height='150' fill='%230b110b'/%3E%3Crect x='120'  y='240' width='60'  height='180' fill='%230c120c'/%3E%3Crect x='180'  y='220' width='60'  height='200' fill='%230b110b'/%3E%3Crect x='240'  y='200' width='60'  height='220' fill='%230a100a'/%3E%3Crect x='300'  y='180' width='60'  height='240' fill='%230c120c'/%3E%3Crect x='360'  y='200' width='60'  height='220' fill='%230b110b'/%3E%3Crect x='420'  y='220' width='60'  height='200' fill='%230a100a'/%3E%3Crect x='480'  y='200' width='60'  height='220' fill='%230c120c'/%3E%3Crect x='540'  y='180' width='60'  height='240' fill='%230b110b'/%3E%3Crect x='600'  y='160' width='60'  height='260' fill='%230a100a'/%3E%3Crect x='660'  y='180' width='60'  height='240' fill='%230c120c'/%3E%3Crect x='720'  y='200' width='60'  height='220' fill='%230b110b'/%3E%3Crect x='780'  y='220' width='60'  height='200' fill='%230a100a'/%3E%3Crect x='840'  y='200' width='60'  height='220' fill='%230c120c'/%3E%3Crect x='900'  y='180' width='60'  height='240' fill='%230b110b'/%3E%3Crect x='960'  y='200' width='60'  height='220' fill='%230a100a'/%3E%3Crect x='1020' y='220' width='60'  height='200' fill='%230c120c'/%3E%3Crect x='1080' y='240' width='60'  height='180' fill='%230b110b'/%3E%3Crect x='1140' y='260' width='60'  height='160' fill='%230a100a'/%3E%3Crect x='1200' y='240' width='60'  height='180' fill='%230c120c'/%3E%3Crect x='1260' y='260' width='60'  height='160' fill='%230b110b'/%3E%3Crect x='1320' y='280' width='60'  height='140' fill='%230a100a'/%3E%3Crect x='1380' y='300' width='60'  height='120' fill='%230c120c'/%3E%3C!-- mid layer pixel terrain --%3E%3Crect x='0'    y='340' width='40'  height='80'  fill='%230d1a0d'/%3E%3Crect x='40'   y='310' width='40'  height='110' fill='%230e1b0e'/%3E%3Crect x='80'   y='280' width='40'  height='140' fill='%23101d10'/%3E%3Crect x='120'  y='260' width='40'  height='160' fill='%230e1b0e'/%3E%3Crect x='160'  y='240' width='40'  height='180' fill='%230d1a0d'/%3E%3Crect x='200'  y='220' width='40'  height='200' fill='%23101d10'/%3E%3Crect x='240'  y='240' width='40'  height='180' fill='%230f1c0f'/%3E%3Crect x='280'  y='260' width='40'  height='160' fill='%230d1a0d'/%3E%3Crect x='320'  y='280' width='40'  height='140' fill='%23101d10'/%3E%3Crect x='360'  y='300' width='40'  height='120' fill='%230e1b0e'/%3E%3Crect x='400'  y='280' width='40'  height='140' fill='%230d1a0d'/%3E%3Crect x='440'  y='260' width='40'  height='160' fill='%23101d10'/%3E%3Crect x='480'  y='240' width='40'  height='180' fill='%230e1b0e'/%3E%3Crect x='520'  y='220' width='40'  height='200' fill='%230d1a0d'/%3E%3Crect x='560'  y='200' width='40'  height='220' fill='%23101d10'/%3E%3Crect x='600'  y='220' width='40'  height='200' fill='%230f1c0f'/%3E%3Crect x='640'  y='240' width='40'  height='180' fill='%230d1a0d'/%3E%3Crect x='680'  y='260' width='40'  height='160' fill='%23101d10'/%3E%3Crect x='720'  y='280' width='40'  height='140' fill='%230e1b0e'/%3E%3Crect x='760'  y='260' width='40'  height='160' fill='%230d1a0d'/%3E%3Crect x='800'  y='240' width='40'  height='180' fill='%23101d10'/%3E%3Crect x='840'  y='220' width='40'  height='200' fill='%230f1c0f'/%3E%3Crect x='880'  y='240' width='40'  height='180' fill='%230d1a0d'/%3E%3Crect x='920'  y='260' width='40'  height='160' fill='%23101d10'/%3E%3Crect x='960'  y='280' width='40'  height='140' fill='%230e1b0e'/%3E%3Crect x='1000' y='300' width='40'  height='120' fill='%230d1a0d'/%3E%3Crect x='1040' y='280' width='40'  height='140' fill='%23101d10'/%3E%3Crect x='1080' y='260' width='40'  height='160' fill='%230f1c0f'/%3E%3Crect x='1120' y='240' width='40'  height='180' fill='%230d1a0d'/%3E%3Crect x='1160' y='220' width='40'  height='200' fill='%23101d10'/%3E%3Crect x='1200' y='240' width='40'  height='180' fill='%230e1b0e'/%3E%3Crect x='1240' y='260' width='40'  height='160' fill='%230d1a0d'/%3E%3Crect x='1280' y='280' width='40'  height='140' fill='%23101d10'/%3E%3Crect x='1320' y='300' width='40'  height='120' fill='%230f1c0f'/%3E%3Crect x='1360' y='320' width='80'  height='100' fill='%230d1a0d'/%3E%3C!-- front foreground dark strip --%3E%3Crect x='0' y='370' width='1440' height='50' fill='%23060b06'/%3E%3C/svg%3E") bottom center/cover no-repeat;
+}
+
+.hero-content{position:relative;z-index:10;text-align:center;padding:2rem;}
+.hero-eyebrow{font-family:'Press Start 2P',monospace;font-size:.5rem;letter-spacing:.3em;
+  color:var(--gold);margin-bottom:1.4rem;opacity:.7;}
+.hero-title{font-family:'Press Start 2P',monospace;font-size:clamp(2rem,6vw,4.8rem);line-height:1.2;
+  background:linear-gradient(135deg,#ffd700 0%,#c8b8ff 50%,#4ecb71 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 40px rgba(200,184,255,.5));margin-bottom:.8rem;}
+.hero-sub{font-family:'Press Start 2P',monospace;font-size:clamp(.5rem,1.2vw,.75rem);
+  color:var(--muted);letter-spacing:.12em;margin-bottom:3rem;}
+.hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+.hbtn{font-family:'Press Start 2P',monospace;font-size:.5rem;padding:.65rem 1.3rem;
+  border:1.5px solid;border-radius:2px;cursor:pointer;transition:all .3s;text-decoration:none;display:inline-flex;align-items:center;gap:.6rem;}
+.hbtn img{width:22px;height:22px;image-rendering:pixelated;object-fit:contain;}
+.hbtn.m{color:var(--melee);border-color:var(--melee);}
+.hbtn.r{color:var(--ranger);border-color:var(--ranger);}
+.hbtn.mg{color:var(--mage);border-color:var(--mage);}
+.hbtn.s{color:var(--summoner);border-color:var(--summoner);}
+.hbtn:hover{color:#fff;transform:translateY(-3px);}
+.hbtn.m:hover{background:var(--melee-dim);box-shadow:0 0 24px var(--melee-glow);}
+.hbtn.r:hover{background:var(--ranger-dim);box-shadow:0 0 24px var(--ranger-glow);}
+.hbtn.mg:hover{background:var(--mage-dim);box-shadow:0 0 24px var(--mage-glow);}
+.hbtn.s:hover{background:var(--summoner-dim);box-shadow:0 0 24px var(--summoner-glow);}
+
+/* scroll hint */
+.scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);z-index:10;
+  display:flex;flex-direction:column;align-items:center;gap:.5rem;animation:fadeUp 2s ease 2s both;}
+.scroll-hint span{font-family:'Press Start 2P',monospace;font-size:.38rem;color:var(--muted);letter-spacing:.2em;}
+.sarrow{width:14px;height:14px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
+  transform:rotate(45deg);animation:bounce 1.2s ease infinite;}
+@keyframes bounce{0%,100%{transform:rotate(45deg) translateY(0)}50%{transform:rotate(45deg) translateY(5px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%)}}
+
+/* ── CLASS SECTIONS ── */
+.cs{padding:5.5rem 0;position:relative;overflow:hidden;}
+.cs::before{content:'';position:absolute;inset:0;opacity:.025;
+  background-size:32px 32px;background-image:linear-gradient(to right,#fff 1px,transparent 1px),linear-gradient(to bottom,#fff 1px,transparent 1px);}
+.cs-alt{background:var(--cave);}
+
+.sec-label{font-family:'Press Start 2P',monospace;font-size:.45rem;letter-spacing:.35em;text-transform:uppercase;margin-bottom:.6rem;opacity:.65;}
+.acc-bar{width:48px;height:3px;margin-bottom:1.2rem;border-radius:2px;}
+.sec-title{font-family:'Press Start 2P',monospace;font-size:clamp(1.1rem,3vw,2rem);line-height:1.4;margin-bottom:.9rem;}
+.sec-desc{font-size:.95rem;color:var(--muted);line-height:1.9;max-width:520px;}
+
+/* stat bars */
+.stat-row{margin-bottom:.55rem;}
+.stat-label{font-family:'Press Start 2P',monospace;font-size:.4rem;color:var(--muted);letter-spacing:.1em;margin-bottom:.2rem;}
+.bar-bg{height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;transition:width 1.3s cubic-bezier(.23,1,.32,1);width:0;}
+
+/* ── DISPLAY CARDS ── */
+.cards-stack{position:relative;display:grid;grid-template-areas:'stack';place-items:center;
+  height:240px;width:340px;}
+.dc{grid-area:stack;position:relative;width:300px;height:150px;border-radius:10px;
+  border:1.5px solid var(--border);background:var(--panel);padding:.9rem 1.1rem;
+  display:flex;flex-direction:column;justify-content:space-between;
+  transform:skewY(-5deg);transition:all .55s cubic-bezier(.23,1,.32,1);cursor:pointer;overflow:hidden;}
+.dc::after{content:'';position:absolute;right:-2px;top:-5%;width:260px;height:110%;
+  background:linear-gradient(to left,var(--void) 0%,transparent 100%);pointer-events:none;z-index:1;}
+.cs-alt .dc::after{background:linear-gradient(to left,var(--cave) 0%,transparent 100%);}
+.dc::before{content:'';position:absolute;inset:0;border-radius:10px;
+  background:rgba(6,6,14,.55);transition:opacity .5s;pointer-events:none;z-index:2;}
+.dc:hover::before{opacity:0;}
+.dc>*{position:relative;z-index:3;display:flex;align-items:center;gap:.5rem;}
+.dc:nth-child(1){filter:grayscale(85%);}
+.dc:nth-child(1):hover{filter:grayscale(0%);transform:skewY(-5deg) translateY(-22px);}
+.dc:nth-child(2){transform:skewY(-5deg) translateX(26px) translateY(16px);filter:grayscale(70%);}
+.dc:nth-child(2):hover{filter:grayscale(0%);transform:skewY(-5deg) translateX(26px) translateY(2px);}
+.dc:nth-child(3){transform:skewY(-5deg) translateX(52px) translateY(32px);filter:grayscale(0%);}
+.dc:nth-child(3):hover{transform:skewY(-5deg) translateX(52px) translateY(40px);}
+.dc-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.dc-icon img{width:28px;height:28px;image-rendering:pixelated;object-fit:contain;}
+.dc-name{font-family:'Press Start 2P',monospace;font-size:.5rem;line-height:1.5;}
+.dc-sub{font-size:.72rem;color:#b0a8d8;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dc-meta{font-size:.65rem;color:var(--muted);}
+
+/* ── GEAR CAROUSEL ── */
+.gear-card{background:var(--panel);border:1.5px solid var(--border);border-radius:8px;
+  padding:1.4rem;transition:transform .3s,box-shadow .3s;min-height:260px;}
+.gear-card:hover{transform:translateY(-4px);}
+.gc-img{width:64px;height:64px;image-rendering:pixelated;object-fit:contain;
+  margin-bottom:.8rem;display:block;filter:drop-shadow(0 0 8px currentColor);}
+.gc-name{font-family:'Press Start 2P',monospace;font-size:.55rem;margin-bottom:.5rem;line-height:1.6;}
+.gc-type{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.55rem;opacity:.65;}
+.gc-desc{font-size:.8rem;color:var(--muted);line-height:1.75;}
+.carousel-control-prev-icon,.carousel-control-next-icon{
+  background-color:rgba(255,255,255,.08);border-radius:50%;padding:1.2rem;background-size:40%;}
+.carousel-indicators [data-bs-target]{background-color:var(--muted);border-radius:50%;
+  width:7px;height:7px;border:none;}
+.carousel-indicators .active{background-color:var(--gold) !important;}
+
+/* ── QUOTE BANNER ── */
+.qbanner{background:linear-gradient(135deg,var(--cave),#16102a);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  padding:4.5rem 2rem;text-align:center;position:relative;overflow:hidden;}
+.qbanner::before{content:'"';position:absolute;font-size:20rem;font-family:Georgia,serif;
+  color:rgba(255,215,0,.025);top:-3rem;left:1rem;line-height:1;pointer-events:none;}
+.q-text{font-family:'Press Start 2P',monospace;font-size:clamp(.55rem,1.4vw,.85rem);
+  line-height:2;color:var(--gold);max-width:680px;margin:0 auto .8rem;}
+.q-attr{font-size:.78rem;color:var(--muted);letter-spacing:.15em;}
+
+/* ── WEAPONS GRID (hero items showcase) ── */
+.weapons-ref{padding:4rem 0;background:var(--cave);border-top:1px solid var(--border);}
+.wref-title{font-family:'Press Start 2P',monospace;font-size:clamp(.6rem,1.5vw,.9rem);
+  color:var(--muted);text-align:center;letter-spacing:.2em;margin-bottom:2.5rem;}
+.wgrid{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;align-items:center;}
+.witem{width:52px;height:52px;border-radius:6px;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;background:var(--panel);
+  transition:all .25s;cursor:default;position:relative;}
+.witem:hover{border-color:rgba(255,215,0,.5);transform:scale(1.2);z-index:5;
+  box-shadow:0 0 14px rgba(255,215,0,.3);}
+.witem img{width:36px;height:36px;image-rendering:pixelated;object-fit:contain;}
+.witem .tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:#1a1828;border:1px solid var(--border);border-radius:4px;padding:.3rem .5rem;
+  font-family:'Press Start 2P',monospace;font-size:.4rem;color:#fff;white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;}
+.witem:hover .tip{opacity:1;}
+
+/* ── FOOTER ── */
+.site-footer{background:var(--cave);border-top:1px solid var(--border);
+  padding:2.5rem 2rem;text-align:center;}
+.footer-logo{font-family:'Press Start 2P',monospace;font-size:.8rem;color:var(--gold);display:block;margin-bottom:.8rem;}
+.footer-text{font-size:.75rem;color:var(--muted);line-height:1.8;}
+.footer-links{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;margin-top:1.2rem;}
+.footer-links a{font-family:'Press Start 2P',monospace;font-size:.4rem;text-decoration:none;}
+
+/* ── SCROLL REVEAL ── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+/* ── SECTION BG GLOWS ── */
+.bg-m{background:radial-gradient(ellipse 90% 60% at 70% 50%,rgba(255,107,53,.055),transparent);}
+.bg-r{background:radial-gradient(ellipse 90% 60% at 30% 50%,rgba(63,220,110,.055),transparent);}
+.bg-mg{background:radial-gradient(ellipse 90% 60% at 70% 50%,rgba(157,110,255,.055),transparent);}
+.bg-s{background:radial-gradient(ellipse 90% 60% at 30% 50%,rgba(255,190,0,.055),transparent);}
+
+@media(max-width:768px){
+  .cards-stack{transform:scale(.78);transform-origin:center top;}
+  .site-nav .nav-links{display:none;}
+}
+
+/* hero entrance */
+.hero-content{animation:heroIn 1s cubic-bezier(.23,1,.32,1) .2s both;}
+@keyframes heroIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+/* ══ CURSOR SYSTEM ══ */
+body.cur-active { cursor: none !important; }
+body.cur-active * { cursor: none !important; }
+
+/* full-screen canvas for all cursor FX — sits above everything */
+#cursor-canvas {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 99999;
+}
+
+/* the custom cursor element */
+#custom-cursor {
+  position: fixed;
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%, -50%);
+  transition: opacity .2s;
+  image-rendering: pixelated;
+}
+
+/* ══════════════════════ BOSS BESTIARY ══════════════════════ */
+#bosses {
+  background: var(--void);
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* sticky progress spine */
+.boss-spine {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(6,6,14,.92);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  padding: .6rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.spine-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: .42rem;
+  color: var(--muted);
+  white-space: nowrap;
+  letter-spacing: .08em;
+}
+.spine-bar-wrap {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.spine-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  width: 0%;
+  transition: width .4s ease, background .4s ease;
+}
+.spine-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: .42rem;
+  color: var(--gold);
+  min-width: 120px;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* section title block */
+.bosses-intro {
+  text-align: center;
+  padding: 5rem 2rem 2rem;
+  position: relative;
+}
+.bosses-intro::before {
+  content: 'BESTIARY';
+  position: absolute;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(3rem, 10vw, 8rem);
+  color: rgba(255,255,255,.02);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.bosses-era-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(.5rem, 1.2vw, .75rem);
+  letter-spacing: .35em;
+  margin-bottom: .6rem;
+}
+.bosses-main-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(1.4rem, 4vw, 3rem);
+  background: linear-gradient(135deg, #ffd700, #ff6b35, #ff6b35);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  filter: drop-shadow(0 0 24px rgba(255,107,53,.4));
+  margin-bottom: .8rem;
+}
+.bosses-sub {
+  font-size: .9rem;
+  color: var(--muted);
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.8;
+}
+
+/* era divider */
+.era-divider {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 3rem 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.era-divider::before, .era-divider::after {
+  content: ''; flex: 1; height: 1px;
+}
+.era-divider.pre-hm::before, .era-divider.pre-hm::after { background: linear-gradient(to right,transparent,#5a8a5a,transparent); }
+.era-divider.hm::before,     .era-divider.hm::after     { background: linear-gradient(to right,transparent,#ff6b35,transparent); }
+.era-tag {
+  font-family: 'Press Start 2P', monospace;
+  font-size: .5rem;
+  letter-spacing: .2em;
+  padding: .4rem 1rem;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.era-tag.pre-hm { color: #5a8a5a; border: 1px solid #5a8a5a; }
+.era-tag.hm     { color: #ff6b35; border: 1px solid #ff6b35; }
+
+/* individual boss card */
+.boss-card {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  max-width: 1200px;
+  margin: 0 auto 2.5rem;
+  padding: 0 2rem;
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.boss-card.boss-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+.boss-card:nth-child(even) {
+  flex-direction: row-reverse;
+  transform: translateX(30px);
+}
+.boss-card:nth-child(even).boss-visible {
+  transform: translateX(0);
+}
+
+/* boss arena — animated sprite side */
+.boss-arena {
+  width: 280px;
+  min-width: 280px;
+  background: var(--panel);
+  border: 1.5px solid var(--border);
+  border-radius: 10px 0 0 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  position: relative;
+  overflow: hidden;
+}
+.boss-card:nth-child(even) .boss-arena {
+  border-radius: 0 10px 10px 0;
+}
+.boss-arena::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 70%, rgba(255,255,255,.03), transparent);
+  pointer-events: none;
+}
+/* animated glow ring under boss */
+.boss-arena::after {
+  content: '';
+  position: absolute;
+  bottom: 1rem;
+  left: 50%; transform: translateX(-50%);
+  width: 70%; height: 16px;
+  border-radius: 50%;
+  background: var(--boss-color, #888);
+  filter: blur(10px);
+  animation: glowPulse 2.5s ease-in-out infinite;
+  opacity: .4;
+}
+@keyframes glowPulse { 0%,100%{opacity:.3;transform:translateX(-50%) scaleX(.8)} 50%{opacity:.7;transform:translateX(-50%) scaleX(1)} }
+
+.boss-sprite-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.boss-sprite {
+  image-rendering: pixelated;
+  object-fit: contain;
+  max-width: 160px;
+  max-height: 160px;
+  width: auto;
+  height: auto;
+  filter: drop-shadow(0 0 12px var(--boss-color, #fff));
+  animation: bossIdle 3s ease-in-out infinite;
+  position: relative;
+  z-index: 2;
+}
+@keyframes bossIdle {
+  0%,100% { transform: translateY(0px) rotate(0deg); }
+  25%      { transform: translateY(-8px) rotate(1deg); }
+  50%      { transform: translateY(-12px) rotate(0deg); }
+  75%      { transform: translateY(-6px) rotate(-1deg); }
+}
+/* alternate float for flying bosses */
+.boss-sprite.fly {
+  animation: bossFloat 2.5s ease-in-out infinite;
+}
+@keyframes bossFloat {
+  0%,100% { transform: translateY(0) scaleX(1); }
+  50%      { transform: translateY(-14px) scaleX(1.03); }
+}
+/* pulsing worm animation */
+.boss-sprite.worm {
+  animation: bossWorm 1.8s ease-in-out infinite;
+}
+@keyframes bossWorm {
+  0%,100% { transform: translateY(0) scaleY(1); }
+  30%     { transform: translateY(-6px) scaleY(1.05); }
+  60%     { transform: translateY(-10px) scaleY(.97); }
+}
+/* slam animation for ground bosses */
+.boss-sprite.slam {
+  animation: bossSlam 2.2s ease-in-out infinite;
+}
+@keyframes bossSlam {
+  0%,100% { transform: translateY(0) scaleX(1); }
+  40%     { transform: translateY(-4px) scaleX(1.04); }
+  70%     { transform: translateY(-8px) scaleX(.98); }
+}
+
+.boss-num {
+  font-family: 'Press Start 2P', monospace;
+  font-size: .45rem;
+  color: var(--boss-color, var(--muted));
+  margin-top: .8rem;
+  letter-spacing: .1em;
+  opacity: .7;
+}
+.boss-difficulty-pips {
+  display: flex;
+  gap: 3px;
+  margin-top: .4rem;
+}
+.pip {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border);
+  border: 1px solid var(--muted);
+}
+.pip.filled {
+  background: var(--boss-color, var(--gold));
+  border-color: var(--boss-color, var(--gold));
+  box-shadow: 0 0 4px var(--boss-color, var(--gold));
+}
+
+/* boss info panel */
+.boss-info {
+  flex: 1;
+  background: var(--cave);
+  border: 1.5px solid var(--border);
+  border-left: none;
+  border-radius: 0 10px 10px 0;
+  padding: 1.8rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.boss-card:nth-child(even) .boss-info {
+  border-left: 1.5px solid var(--border);
+  border-right: none;
+  border-radius: 10px 0 0 10px;
+}
+.boss-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(.8rem, 1.8vw, 1.15rem);
+  line-height: 1.4;
+  color: var(--boss-color, var(--text));
+  text-shadow: 0 0 20px var(--boss-color, transparent);
+}
+.boss-type-badge {
+  display: inline-block;
+  font-family: 'Press Start 2P', monospace;
+  font-size: .38rem;
+  padding: .2rem .6rem;
+  border-radius: 2px;
+  letter-spacing: .1em;
+  margin-bottom: .2rem;
+}
+.boss-desc {
+  font-size: .85rem;
+  color: var(--muted);
+  line-height: 1.85;
+  border-left: 2px solid var(--boss-color, var(--border));
+  padding-left: .8rem;
+}
+.boss-strategy-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: .42rem;
+  letter-spacing: .1em;
+  color: var(--gold);
+  margin-bottom: .3rem;
+}
+.boss-strategy {
+  font-size: .82rem;
+  color: #a0a0c0;
+  line-height: 1.8;
+}
+.boss-gear-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: .42rem;
+  letter-spacing: .1em;
+  color: var(--muted);
+  margin-bottom: .5rem;
+}
+.boss-gear-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  align-items: center;
+}
+.boss-gear-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .25rem;
+  position: relative;
+}
+.boss-gear-item img {
+  width: 36px; height: 36px;
+  image-rendering: pixelated;
+  object-fit: contain;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  padding: 3px;
+  transition: transform .2s, border-color .2s, box-shadow .2s;
+}
+.boss-gear-item img:hover {
+  transform: scale(1.25);
+  border-color: var(--boss-color, var(--gold));
+  box-shadow: 0 0 10px var(--boss-color, var(--gold));
+  z-index: 5;
+}
+.boss-gear-item span {
+  font-family: 'Press Start 2P', monospace;
+  font-size: .3rem;
+  color: var(--muted);
+  text-align: center;
+  max-width: 50px;
+  line-height: 1.3;
+}
+
+/* hp bar */
+.boss-hp-row {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+.boss-hp-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: .38rem;
+  color: var(--muted);
+  min-width: 28px;
+}
+.boss-hp-bar {
+  flex: 1; height: 6px;
+  background: var(--border); border-radius: 3px; overflow: hidden;
+}
+.boss-hp-fill {
+  height: 100%; border-radius: 3px;
+  background: var(--boss-color, #ff4444);
+  box-shadow: 0 0 6px var(--boss-color, #ff4444);
+  width: 0;
+  transition: width 1.2s cubic-bezier(.23,1,.32,1);
+}
+.boss-hp-val {
+  font-family: 'Press Start 2P', monospace;
+  font-size: .38rem;
+  color: var(--boss-color, var(--text));
+  min-width: 60px;
+  text-align: right;
+}
+
+@media(max-width:768px) {
+  .boss-card, .boss-card:nth-child(even) { flex-direction: column; }
+  .boss-arena { width: 100%; min-width: unset; border-radius: 10px 10px 0 0; }
+  .boss-info  { border-left: 1.5px solid var(--border); border-top: none; border-radius: 0 0 10px 10px; }
+  .boss-card:nth-child(even) .boss-arena { border-radius: 10px 10px 0 0; }
+  .boss-card:nth-child(even) .boss-info  { border-right: 1.5px solid var(--border); border-radius: 0 0 10px 10px; }
+}
+
+/* ── CLASS SELECTOR HUD ── */
+#class-hud {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 600;
+  display: flex;
+  gap: .6rem;
+  background: rgba(6,6,14,.85);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .5rem .7rem;
+  backdrop-filter: blur(12px);
+}
+.chud-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: .42rem;
+  padding: .45rem .8rem;
+  border: 1.5px solid;
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  transition: all .25s;
+  display: flex; align-items: center; gap: .4rem;
+  color: var(--muted);
+  border-color: var(--border);
+  letter-spacing: .05em;
+}
+.chud-btn img { width: 18px; height: 18px; image-rendering: pixelated; object-fit: contain; }
+.chud-btn:hover { color: #fff; }
+.chud-btn[data-class="melee"]    { }
+.chud-btn[data-class="melee"]:hover, .chud-btn[data-class="melee"].active
+  { color: var(--melee); border-color: var(--melee); background: var(--melee-dim); box-shadow: 0 0 12px var(--melee-glow); }
+.chud-btn[data-class="ranger"]:hover, .chud-btn[data-class="ranger"].active
+  { color: var(--ranger); border-color: var(--ranger); background: var(--ranger-dim); box-shadow: 0 0 12px var(--ranger-glow); }
+.chud-btn[data-class="mage"]:hover, .chud-btn[data-class="mage"].active
+  { color: var(--mage); border-color: var(--mage); background: var(--mage-dim); box-shadow: 0 0 12px var(--mage-glow); }
+.chud-btn[data-class="summoner"]:hover, .chud-btn[data-class="summoner"].active
+  { color: var(--summoner); border-color: var(--summoner); background: var(--summoner-dim); box-shadow: 0 0 12px var(--summoner-glow); }
+.chud-btn[data-class="none"]:hover
+  { color: #fff; border-color: #fff; background: rgba(255,255,255,.05); }
+.chud-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: .38rem;
+  color: var(--muted);
+  align-self: center;
+  white-space: nowrap;
+  padding-right: .3rem;
+  border-right: 1px solid var(--border);
+  margin-right: .2rem;
+}
+/* laser beam element (ranger click) */
+.laser-beam {
+  position: fixed;
+  height: 2px;
+  pointer-events: none;
+  z-index: 99997;
+  transform-origin: 0 50%;
+  border-radius: 2px;
+  animation: laserFade .35s ease forwards;
+}
+@keyframes laserFade {
+  0%   { opacity: 1; box-shadow: 0 0 6px 2px currentColor; }
+  70%  { opacity: .8; }
+  100% { opacity: 0; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="cursor-canvas"></canvas>
+<div id="custom-cursor"></div>
+
+<!-- CLASS CURSOR HUD -->
+<div id="class-hud">
+  <span class="chud-label">CURSOR</span>
+  <button class="chud-btn" data-class="melee">
+    <img src="https://terraria.wiki.gg/wiki/Special:FilePath/Zenith.png" alt="">MELEE
+  </button>
+  <button class="chud-btn" data-class="ranger">
+    <img src="https://terraria.wiki.gg/wiki/Special:FilePath/Phantasm.png" alt="">RANGER
+  </button>
+  <button class="chud-btn" data-class="mage">
+    <img src="https://terraria.wiki.gg/wiki/Special:FilePath/Last_Prism.png" alt="">MAGE
+  </button>
+  <button class="chud-btn" data-class="summoner">
+    <img src="https://terraria.wiki.gg/wiki/Special:FilePath/Stardust_Dragon_Staff.png" alt="">SUMMONER
+  </button>
+  <button class="chud-btn" data-class="none">✕ OFF</button>
+</div>
+
+<!-- NAV -->
+<nav class="site-nav">
+  <a href="#hero" class="nav-logo">⚒ TERRARIA</a>
+  <ul class="nav-links">
+    <li><a href="#melee">MELEE</a></li>
+    <li><a href="#ranger">RANGER</a></li>
+    <li><a href="#mage">MAGE</a></li>
+    <li><a href="#summoner">SUMMONER</a></li>
+    <li><a href="#bosses">BOSSES</a></li>
+  </ul>
+</nav>
+
+<!-- ══════════════════════════════════ HERO ══════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="p-layer" id="p-stars"></div>
+  <div class="p-layer" id="p-nebula"></div>
+  <div id="p-ground-wrap"><div id="p-ground"></div></div>
+
+  <div class="hero-content">
+    <p class="hero-eyebrow">class compendium &nbsp;·&nbsp; endgame builds &nbsp;·&nbsp; best gear</p>
+    <h1 class="hero-title">TERRARIA</h1>
+    <p class="hero-sub">master every class. conquer every world.</p>
+    <div class="hero-btns">
+      <a href="#melee"    class="hbtn m"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Zenith.png" alt="">MELEE</a>
+      <a href="#ranger"   class="hbtn r"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Phantasm.png" alt="">RANGER</a>
+      <a href="#mage"     class="hbtn mg"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Last_Prism.png" alt="">MAGE</a>
+      <a href="#summoner" class="hbtn s"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Stardust_Dragon_Staff.png" alt="">SUMMONER</a>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>SCROLL</span><div class="sarrow"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ MELEE ══════════════════════════════════ -->
+<section class="cs bg-m" id="melee">
+  <div class="container">
+    <div class="row align-items-center gy-5">
+
+      <!-- INFO -->
+      <div class="col-lg-4 reveal">
+        <p class="sec-label" style="color:var(--melee)">01 — Melee Class</p>
+        <div class="acc-bar" style="background:var(--melee)"></div>
+        <h2 class="sec-title" style="color:var(--melee)">THE WARRIOR</h2>
+        <p class="sec-desc">The tankiest class in Terraria. With Solar Flare armor granting the highest defense in the game, and the legendary <strong style="color:var(--gold)">Zenith</strong> — forged from 14 swords — a warrior can end Moon Lord faster than any other class.</p>
+        <div class="mt-4">
+          <div class="stat-row"><div class="stat-label">DEFENSE</div><div class="bar-bg"><div class="bar-fill" style="background:var(--melee)" data-w="95"></div></div></div>
+          <div class="stat-row"><div class="stat-label">DAMAGE</div><div class="bar-bg"><div class="bar-fill" style="background:var(--melee)" data-w="92"></div></div></div>
+          <div class="stat-row"><div class="stat-label">MOBILITY</div><div class="bar-bg"><div class="bar-fill" style="background:var(--melee)" data-w="52"></div></div></div>
+          <div class="stat-row"><div class="stat-label">EASE OF USE</div><div class="bar-bg"><div class="bar-fill" style="background:var(--melee)" data-w="80"></div></div></div>
+        </div>
+      </div>
+
+      <!-- DISPLAY CARDS -->
+      <div class="col-lg-4 d-flex justify-content-center reveal" style="transition-delay:.2s">
+        <div class="cards-stack">
+          <div class="dc" style="border-color:rgba(255,107,53,.25)">
+            <div class="dc-top">
+              <div class="dc-icon" style="background:rgba(255,107,53,.15)"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Warrior_Emblem.png" alt=""></div>
+              <span class="dc-name" style="color:var(--melee)">Warrior Emblem</span>
+            </div>
+            <div class="dc-sub">+15% melee damage</div>
+            <div class="dc-meta">WoF drop · core accessory</div>
+          </div>
+          <div class="dc" style="border-color:rgba(255,107,53,.3)">
+            <div class="dc-top">
+              <div class="dc-icon" style="background:rgba(255,107,53,.15)"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Solar_Flare_Breastplate.png" alt=""></div>
+              <span class="dc-name" style="color:var(--melee)">Solar Flare Armor</span>
+            </div>
+            <div class="dc-sub">78% damage reduction</div>
+            <div class="dc-meta">Moon Lord drop · best defense</div>
+          </div>
+          <div class="dc" style="border-color:rgba(255,107,53,.6)">
+            <div class="dc-top">
+              <div class="dc-icon" style="background:rgba(255,107,53,.2)"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Zenith.png" alt=""></div>
+              <span class="dc-name" style="color:var(--melee)">Zenith</span>
+            </div>
+            <div class="dc-sub">Homing blade barrage</div>
+            <div class="dc-meta">Best weapon in the game</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAROUSEL -->
+      <div class="col-lg-4 reveal" style="transition-delay:.35s">
+        <div id="cMelee" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3500">
+          <div class="carousel-indicators">
+            <button type="button" data-bs-target="#cMelee" data-bs-slide-to="0" class="active"></button>
+            <button type="button" data-bs-target="#cMelee" data-bs-slide-to="1"></button>
+            <button type="button" data-bs-target="#cMelee" data-bs-slide-to="2"></button>
+            <button type="button" data-bs-target="#cMelee" data-bs-slide-to="3"></button>
+          </div>
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <div class="gear-card" style="border-color:rgba(255,107,53,.35)">
+                <img class="gc-img" src="https://terraria.wiki.gg/wiki/Special:FilePath/Zenith.png" alt="Zenith" style="color:var(--melee)">
+                <div class="gc-name" style="color:var(--melee)">ZENITH</div>
+                <div class="gc-type" style="color:var(--melee)">WEAPON · SWORD</div>
+                <p class="gc-desc">The most powerful weapon in Terraria. Crafted from 14 legendary swords, it fires a constant swarm of homing, wall-piercing blades. Against Moon Lord it is simply unmatched.</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="gear-card" style="border-color:rgba(255,107,53,.35)">
+                <img class="gc-img" src="https://terraria.wiki.gg/wiki/Special:FilePath/Solar_Flare_Breastplate.png" alt="Solar Flare" style="color:var(--melee)">
+                <div class="gc-name" style="color:var(--melee)">SOLAR FLARE ARMOR</div>
+                <div class="gc-type" style="color:var(--melee)">ARMOR · ENDGAME</div>
+                <p class="gc-desc">Crafted from Solar Fragments. The highest defense set in the game. Set bonus creates a Solar Shield that charges while avoiding damage, enabling devastating dashes.</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="gear-card" style="border-color:rgba(255,107,53,.35)">
+                <img class="gc-img" src="https://terraria.wiki.gg/wiki/Special:FilePath/Terra_Blade.png" alt="Terra Blade" style="color:var(--melee)">
+                <div class="gc-name" style="color:var(--melee)">TERRA BLADE</div>
+                <div class="gc-type" style="color:var(--melee)">WEAPON · PRE-ENDGAME</div>
+                <p class="gc-desc">The peak of mid-Hardmode melee. Fires a green energy beam on swing. A core component in crafting the Zenith — and powerful enough to carry you there.</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="gear-card" style="border-color:rgba(255,107,53,.35)">
+                <img class="gc-img" src="https://terraria.wiki.gg/wiki/Special:FilePath/Mechanical_Glove.png" alt="Mechanical Glove" style="color:var(--melee)">
+                <div class="gc-name" style="color:var(--melee)">MECHANICAL GLOVE</div>
+                <div class="gc-type" style="color:var(--melee)">ACCESSORY</div>
+                <p class="gc-desc">Combines the Power Glove and Avenger Emblem. Grants +12% melee damage, +12% speed, and knockback bonus. The melee damage multiplier every build needs.</p>
+              </div>
+            </div>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#cMelee" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+          <button class="carousel-control-next" type="button" data-bs-target="#cMelee" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ RANGER ══════════════════════════════════ -->
+<section class="cs cs-alt bg-r" id="ranger">
+  <div class="container">
+    <div class="row align-items-center gy-5 flex-lg-row-reverse">
+
+      <div class="col-lg-4 reveal">
+        <p class="sec-label" style="color:var(--ranger)">02 — Ranger Class</p>
+        <div class="acc-bar" style="background:var(--ranger)"></div>
+        <h2 class="sec-title" style="color:var(--ranger)">THE RANGER</h2>
+        <p class="sec-desc">The safest class for boss fights. Shroomite Armor's stealth mechanic paired with the <strong style="color:var(--gold)">Phantasm</strong> bow and Holy Arrows creates a meteor shower of homing stars — all from a safe distance.</p>
+        <div class="mt-4">
+          <div class="stat-row"><div class="stat-label">DEFENSE</div><div class="bar-bg"><div class="bar-fill" style="background:var(--ranger)" data-w="60"></div></div></div>
+          <div class="stat-row"><div class="stat-label">DAMAGE</div><div class="bar-bg"><div class="bar-fill" style="background:var(--ranger)" data-w="87"></div></div></div>
+          <div class="stat-row"><div class="stat-label">RANGE / SAFETY</div><div class="bar-bg"><div class="bar-fill" style="background:var(--ranger)" data-w="98"></div></div></div>
+          <div class="stat-row"><div class="stat-label">EASE OF USE</div><div class="bar-bg"><div class="bar-fill" style="background:var(--ranger)" data-w="85"></div></div></div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 d-flex justify-content-center reveal" style="transition-delay:.2s">
+        <div class="cards-stack">
+          <div class="dc" style="border-color:rgba(63,220,110,.25)">
+            <div class="dc-top">
+              <div class="dc-icon" style="background:rgba(63,220,110,.15)"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Ranger_Emblem.png" alt=""></div>
+              <span class="dc-name" style="color:var(--ranger)">Ranger Emblem</span>
+            </div>
+            <div class="dc-sub">+15% ranged damage</div>
+            <div class="dc-meta">WoF drop · core accessory</div>
+          </div>
+          <div class="dc" style="border-color:rgba(63,220,110,.3)">
+            <div class="dc-top">
+              <div class="dc-icon" style="background:rgba(63,220,110,.15)"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Shroomite_Headgear.png" alt=""></div>
+              <span class="dc-name" style="color:var(--ranger)">Shroomite Armor</span>
+            </div>
+            <div class="dc-sub">Stealth +25% damage</div>
+            <div class="dc-meta">Best pre-Moon Lord armor</div>
+          </div>
+          <div class="dc" style="border-color:rgba(63,220,110,.6)">
+            <div class="dc-top">
+              <div class="dc-icon" style="background:rgba(63,220,110,.2)"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Phantasm.png" alt=""></div>
+              <span class="dc-name" style="color:var(--ranger)">Phantasm</span>
+            </div>
+            <div class="dc-sub">4-arrow burst fire</div>
+            <div class="dc-meta">Vortex fragment bow</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 reveal" style="transition-delay:.35s">
+        <div id="cRanger" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3800">
+          <div class="carousel-indicators">
+            <button type="button" data-bs-target="#cRanger" data-bs-slide-to="0" class="active"></button>
+            <button type="button" data-bs-target="#cRanger" data-bs-slide-to="1"></button>
+            <button type="button" data-bs-target="#cRanger" data-bs-slide-to="2"></button>
+            <button type="button" data-bs-target="#cRanger" data-bs-slide-to="3"></button>
+          </div>
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <div class="gear-card" style="border-color:rgba(63,220,110,.35)">
+                <img class="gc-img" src="https://terraria.wiki.gg/wiki/Special:FilePath/Phantasm.png" alt="Phantasm" style="color:var(--ranger)">
+                <div class="gc-name" style="color:var(--ranger)">PHANTASM</div>
+                <div class="gc-type" style="color:var(--ranger)">WEAPON · BOW</div>
+                <p class="gc-desc">Crafted from Vortex Fragments. Fires 4 arrows per shot and builds rapid-fire with Holy Arrows, summoning a storm of homing fallen stars. The ranger's crown jewel.</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="gear-card" style="border-color:rgba(63,220,110,.35)">
+                <img class="gc-img" src="https://terraria.wiki.gg/wiki/Special:FilePath/Shroomite_Headgear.png" alt="Shroomite" style="color:var(--ranger)">
+                <div class="gc-name" style="color:var(--ranger)">SHROOMITE ARMOR</div>
+                <div class="gc-type" style="color:var(--ranger)">ARMOR · LATE HARDMODE</div>
+                <p class="gc-desc">Stand still to activate stealth, granting +25% damage and near-invisibility. Three helmet variants specialize in bows, guns, or rockets for maximum flexibility.</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="gear-card" style="border-color:rgba(63,220,110,.35)">
+                <img class="gc-img" src="https://terraria.wiki.gg/wiki/Special:FilePath/Vortex_Beater.png" alt="Vortex Beater" style="color:var(--ranger)">
+                <div class="gc-name" style="color:var(--ranger)">VORTEX BEATER</div>
+                <div class="gc-type" style="color:var(--ranger)">WEAPON · GUN</div>
+                <p class="gc-desc">Also from Vortex Fragments. A rapid-fire gun that randomly launches homing rockets alongside bullets. Pairs devastatingly with Chlorophyte Bullets for auto-aim carnage.</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="gear-card" style="border-color:rgba(63,220,110,.35)">
+                <img class="gc-img" src="https://terraria.wiki.gg/wiki/Special:FilePath/Endless_Quiver.png" alt="Endless Quiver" style="color:var(--ranger)">
+                <div class="gc-name" style="color:var(--ranger)">ENDLESS QUIVER</div>
+                <div class="gc-type" style="color:var(--ranger)">ACCESSORY · AMMO</div>
+                <p class="gc-desc">Crafted from 3996 wooden arrows at a Crystal Ball. Provides infinite wooden arrows so you can fill inventory with Holy Arrows, Chlorophyte Arrows, and other premium ammo.</p>
+              </div>
+            </div>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#cRanger" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+          <button class="carousel-control-next" type="button" data-bs-target="#cRanger" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ QUOTE ══════════════════════════════════ -->
+<div class="qbanner">
+  <p class="q-text">"dig, fight, explore, build."</p>
+  <p class="q-attr">— RE-LOGIC &nbsp;·&nbsp; TERRARIA</p>
+</div>
+
+<!-- ══════════════════════════════════ MAGE ══════════════════════════════════ -->
+<section class="cs bg-mg" id="mage">
+  <div class="container">
+    <div class="row align-items-center gy-5">
+
+      <div class="col-lg-4 reveal">
+        <p class="sec-label" style="color:var(--mage)">03 — Mage Class</p>
+        <div class="acc-bar" style="background:var(--mage)"></div>
+        <h2 class="sec-title" style="color:var(--mage)">THE MAGE</h2>
+        <p class="sec-desc">The most spectacular class in the game. <strong style="color:var(--gold)">Last Prism</strong> fires a converging rainbow beam of pure destruction. Nebula Armor's stacking buff orbs make a skilled mage nearly unstoppable at full power.</p>
+        <div class="mt-4">
+          <div class="stat-row"><div class="stat-label">DEFENSE</div><div class="bar-bg"><div class="bar-fill" style="background:var(--mage)" data-w="42"></div></div></div>
+          <div class="stat-row"><div class="stat-label">DAMAGE</div><div class="bar-bg"><div class="bar-fill" style="background:var(--mage)" data-w="95"></div></div></div>
+          <div class="stat-row"><div class="stat-label">CROWD CONTROL</div><div class="bar-bg"><div class="bar-fill" style="background:var(--mage)" data-w="99"></div></div></div>
+          <div class="stat-row"><div class="stat-label">EASE OF USE</div><div class="bar-bg"><div class="bar-fill" style="background:var(--mage)" data-w="58"></div></div></div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 d-flex justify-content-center reveal" style="transition-delay:.2s">
+        <div class="cards-stack">
+          <div class="dc" style="border-color:rgba(157,110,255,.25)">
+            <div class="dc-top">
+              <div class="dc-icon" style="background:rgba(157,110,255,.15)"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Sorcerer_Emblem.png" alt=""></div>
+              <span class="dc-name" style="color:var(--mage)">Sorcerer Emblem</span>
+            </div>
+            <div class="dc-sub">+15% magic damage</div>
+            <div class="dc-meta">WoF drop · core accessory</div>
+          </div>
+          <div class="dc" style="border-color:rgba(157,110,255,.3)">
+            <div class="dc-top">
+              <div class="dc-icon" style="background:rgba(157,110,255,.15)"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Nebula_Helmet.png" alt=""></div>
+              <span class="dc-name" style="color:var(--mage)">Nebula Armor</span>
+            </div>
+            <div class="dc-sub">Buff orb stacking system</div>
+            <div class="dc-meta">Fragment crafted · endgame</div>
+          </div>
+          <div class="dc" style="border-color:rgba(157,110,255,.6)">
+            <div class="dc-top">
+              <div class="dc-icon" style="background:rgba(157,110,255,.2)"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Last_Prism.png" alt=""></div>
+              <span class="dc-name" style="color:var(--mage)">Last Prism</span>
+            </div>
+            <div class="dc-sub">Rainbow death beam</div>
+            <div class="dc-meta">Moon Lord drop</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 reveal" style="transition-delay:.35s">
+        <div id="cMage" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+          <div class="carousel-indicators">
+            <button type="button" data-bs-target="#cMage" data-bs-slide-to="0" class="active"></button>
+            <button type="button" data-bs-target="#cMage" data-bs-slide-to="1"></button>
+            <button type="button" data-bs-target="#cMage" data-bs-slide-to="2"></button>
+            <button type="button" data-bs-target="#cMage" data-bs-slide-to="3"></button>
+          </div>
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <div class="gear-card" style="border-color:rgba(157,110,255,.35)">
+                <img class="gc-img" src="https://terraria.wiki.gg/wiki/Special:FilePath/Last_Prism.png" alt="Last Prism" style="color:var(--mage)">
+                <div class="gc-name" style="color:var(--mage)">LAST PRISM</div>
+                <div class="gc-type" style="color:var(--mage)">WEAPON · MAGIC GUN</div>
+                <p class="gc-desc">Dropped by Moon Lord. Fires 6 rainbow lasers that converge into one devastating beam after 2 seconds of channeling. The highest single-target DPS of any magic weapon.</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="gear-card" style="border-color:rgba(157,110,255,.35)">
+                <img class="gc-img" src="https://terraria.wiki.gg/wiki/Special:FilePath/Nebula_Helmet.png" alt="Nebula Armor" style="color:var(--mage)">
+                <div class="gc-name" style="color:var(--mage)">NEBULA ARMOR</div>
+                <div class="gc-type" style="color:var(--mage)">ARMOR · ENDGAME</div>
+                <p class="gc-desc">Crafted from Nebula Fragments. Killing enemies spawns orbs granting stacking damage, life regen, and mana regen bonuses. At maximum stacks the mage becomes lethal.</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="gear-card" style="border-color:rgba(157,110,255,.35)">
+                <img class="gc-img" src="https://terraria.wiki.gg/wiki/Special:FilePath/Nebula_Blaze.png" alt="Nebula Blaze" style="color:var(--mage)">
+                <div class="gc-name" style="color:var(--mage)">NEBULA BLAZE</div>
+                <div class="gc-type" style="color:var(--mage)">WEAPON · MAGIC GUN</div>
+                <p class="gc-desc">Also from Nebula Fragments. A fast-firing magic pistol that randomly launches a high-damage pink nova projectile. Excellent against fast-moving targets and crowds.</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="gear-card" style="border-color:rgba(157,110,255,.35)">
+                <img class="gc-img" src="https://terraria.wiki.gg/wiki/Special:FilePath/Mana_Cloak.png" alt="Mana Cloak" style="color:var(--mage)">
+                <div class="gc-name" style="color:var(--mage)">MANA CLOAK</div>
+                <div class="gc-type" style="color:var(--mage)">ACCESSORY</div>
+                <p class="gc-desc">Combines Mana Flower, Star Cloak, and Mana Regeneration Band. Auto-drinks mana potions and generates mana stars when you take damage. Essential mana management.</p>
+              </div>
+            </div>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#cMage" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+          <button class="carousel-control-next" type="button" data-bs-target="#cMage" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ SUMMONER ══════════════════════════════════ -->
+<section class="cs cs-alt bg-s" id="summoner">
+  <div class="container">
+    <div class="row align-items-center gy-5 flex-lg-row-reverse">
+
+      <div class="col-lg-4 reveal">
+        <p class="sec-label" style="color:var(--summoner)">04 — Summoner Class</p>
+        <div class="acc-bar" style="background:var(--summoner)"></div>
+        <h2 class="sec-title" style="color:var(--summoner)">THE SUMMONER</h2>
+        <p class="sec-desc">Let your army fight for you. The <strong style="color:var(--gold)">Stardust Dragon</strong> grows a segment with every summon, becoming a screen-filling beast that hunts every enemy at once. Focus on survival while your minions handle the carnage.</p>
+        <div class="mt-4">
+          <div class="stat-row"><div class="stat-label">DEFENSE</div><div class="bar-bg"><div class="bar-fill" style="background:var(--summoner)" data-w="33"></div></div></div>
+          <div class="stat-row"><div class="stat-label">SUSTAINED DPS</div><div class="bar-bg"><div class="bar-fill" style="background:var(--summoner)" data-w="91"></div></div></div>
+          <div class="stat-row"><div class="stat-label">MINION COUNT</div><div class="bar-bg"><div class="bar-fill" style="background:var(--summoner)" data-w="99"></div></div></div>
+          <div class="stat-row"><div class="stat-label">EASE OF USE</div><div class="bar-bg"><div class="bar-fill" style="background:var(--summoner)" data-w="70"></div></div></div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 d-flex justify-content-center reveal" style="transition-delay:.2s">
+        <div class="cards-stack">
+          <div class="dc" style="border-color:rgba(255,190,0,.25)">
+            <div class="dc-top">
+              <div class="dc-icon" style="background:rgba(255,190,0,.15)"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Summoner_Emblem.png" alt=""></div>
+              <span class="dc-name" style="color:var(--summoner)">Summoner Emblem</span>
+            </div>
+            <div class="dc-sub">+15% minion damage</div>
+            <div class="dc-meta">WoF drop · core accessory</div>
+          </div>
+          <div class="dc" style="border-color:rgba(255,190,0,.3)">
+            <div class="dc-top">
+              <div class="dc-icon" style="background:rgba(255,190,0,.15)"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Stardust_Helmet.png" alt=""></div>
+              <span class="dc-name" style="color:var(--summoner)">Stardust Armor</span>
+            </div>
+            <div class="dc-sub">Most minion slots in game</div>
+            <div class="dc-meta">Fragment crafted · endgame</div>
+          </div>
+          <div class="dc" style="border-color:rgba(255,190,0,.6)">
+            <div class="dc-top">
+              <div class="dc-icon" style="background:rgba(255,190,0,.2)"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Stardust_Dragon_Staff.png" alt=""></div>
+              <span class="dc-name" style="color:var(--summoner)">Stardust Dragon</span>
+            </div>
+            <div class="dc-sub">Infinitely scaling dragon</div>
+            <div class="dc-meta">Best-in-slot minion</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 reveal" style="transition-delay:.35s">
+        <div id="cSummoner" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4200">
+          <div class="carousel-indicators">
+            <button type="button" data-bs-target="#cSummoner" data-bs-slide-to="0" class="active"></button>
+            <button type="button" data-bs-target="#cSummoner" data-bs-slide-to="1"></button>
+            <button type="button" data-bs-target="#cSummoner" data-bs-slide-to="2"></button>
+            <button type="button" data-bs-target="#cSummoner" data-bs-slide-to="3"></button>
+          </div>
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <div class="gear-card" style="border-color:rgba(255,190,0,.35)">
+                <img class="gc-img" src="https://terraria.wiki.gg/wiki/Special:FilePath/Stardust_Dragon_Staff.png" alt="Stardust Dragon Staff" style="color:var(--summoner)">
+                <div class="gc-name" style="color:var(--summoner)">STARDUST DRAGON STAFF</div>
+                <div class="gc-type" style="color:var(--summoner)">WEAPON · MINION</div>
+                <p class="gc-desc">Crafted from Stardust Fragments. Each additional summon adds a dragon segment — with full minion slots, the dragon becomes a screen-filling monster that follows and destroys all enemies.</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="gear-card" style="border-color:rgba(255,190,0,.35)">
+                <img class="gc-img" src="https://terraria.wiki.gg/wiki/Special:FilePath/Stardust_Helmet.png" alt="Stardust Armor" style="color:var(--summoner)">
+                <div class="gc-name" style="color:var(--summoner)">STARDUST ARMOR</div>
+                <div class="gc-type" style="color:var(--summoner)">ARMOR · ENDGAME</div>
+                <p class="gc-desc">The definitive summoner armor. Set bonus automatically summons a Stardust Guardian that smashes nearby enemies. Provides the most minion capacity of any armor in the game.</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="gear-card" style="border-color:rgba(255,190,0,.35)">
+                <img class="gc-img" src="https://terraria.wiki.gg/wiki/Special:FilePath/Durendal.png" alt="Durendal" style="color:var(--summoner)">
+                <div class="gc-name" style="color:var(--summoner)">DURENDAL</div>
+                <div class="gc-type" style="color:var(--summoner)">WEAPON · WHIP</div>
+                <p class="gc-desc">From Hallowed Mimics. Hitting an enemy increases your summoning speed significantly. Whips direct your minions to target enemies with a damage bonus — Durendal's speed boost is invaluable.</p>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="gear-card" style="border-color:rgba(255,190,0,.35)">
+                <img class="gc-img" src="https://terraria.wiki.gg/wiki/Special:FilePath/Papyrus_Scarab.png" alt="Papyrus Scarab" style="color:var(--summoner)">
+                <div class="gc-name" style="color:var(--summoner)">PAPYRUS SCARAB</div>
+                <div class="gc-type" style="color:var(--summoner)">ACCESSORY</div>
+                <p class="gc-desc">Combines Hercules Beetle and Necromantic Scroll. Grants +1 minion slot and +15% minion damage. A mandatory accessory in every competitive summoner build.</p>
+              </div>
+            </div>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#cSummoner" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+          <button class="carousel-control-next" type="button" data-bs-target="#cSummoner" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ BOSS BESTIARY ══════════════════════════ -->
+<section id="bosses">
+
+  <!-- sticky progress bar -->
+  <div class="boss-spine" id="bossSpine">
+    <span class="spine-label">BOSS</span>
+    <div class="spine-bar-wrap"><div class="spine-bar-fill" id="spineBar"></div></div>
+    <span class="spine-name" id="spineName">—</span>
+  </div>
+
+  <!-- intro -->
+  <div class="bosses-intro">
+    <p class="bosses-era-title" style="color:#ff6b35">BOSS BESTIARY</p>
+    <h2 class="bosses-main-title">FROM SLIME TO MOON LORD</h2>
+    <p class="bosses-sub">Every boss in Terraria, ordered easiest to hardest — complete with idle animations, strategies, and recommended gear for each encounter.</p>
+  </div>
+
+  <!-- ─── PRE-HARDMODE ERA ─── -->
+  <div class="era-divider pre-hm"><span class="era-tag pre-hm">⚔ PRE-HARDMODE</span></div>
+
+  <!-- 01 King Slime -->
+  <div class="boss-card" data-boss="King Slime" data-hp="2000" data-maxhp="50000" style="--boss-color:#4a9eff">
+    <div class="boss-arena" style="background:linear-gradient(160deg,#0a0f1a,#091520);">
+      <div class="boss-sprite-wrap">
+        <img class="boss-sprite fly" src="https://terraria.wiki.gg/wiki/Special:FilePath/King_Slime.png" alt="King Slime" style="max-width:130px">
+      </div>
+      <div class="boss-num">#01 · KING SLIME</div>
+      <div class="boss-difficulty-pips">
+        <div class="pip filled"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+      </div>
+    </div>
+    <div class="boss-info">
+      <div>
+        <span class="boss-type-badge" style="background:rgba(74,158,255,.15);color:#4a9eff;border:1px solid rgba(74,158,255,.3)">PRE-HARDMODE · OPTIONAL</span>
+        <h3 class="boss-name">KING SLIME</h3>
+      </div>
+      <div class="boss-hp-row">
+        <span class="boss-hp-label">HP</span>
+        <div class="boss-hp-bar"><div class="boss-hp-fill" data-w="4"></div></div>
+        <span class="boss-hp-val">2,000</span>
+      </div>
+      <p class="boss-desc">The first true boss most players encounter. A giant crowned slime that teleports to close distance and periodically spawns smaller Blue Slimes. As you deal damage, it shrinks — but the teleports become more frequent and erratic.</p>
+      <div>
+        <p class="boss-strategy-title">⚡ STRATEGY</p>
+        <p class="boss-strategy">Build a long flat arena and keep moving in one direction. The teleports are predictable — he always lands near you. Use ranged weapons to deal consistent damage from a distance. His spawn rate for smaller slimes increases as HP drops, so burst him down quickly in the final phase.</p>
+      </div>
+      <div>
+        <p class="boss-gear-title">RECOMMENDED GEAR</p>
+        <div class="boss-gear-row">
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Boomstick.png" alt=""><span>Boomstick</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Hermes_Boots.png" alt=""><span>Hermes Boots</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Gold_Bow.png" alt=""><span>Gold Bow</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Gold_Helmet.png" alt=""><span>Gold Armor</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Shuriken.png" alt=""><span>Shurikens</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 Eye of Cthulhu -->
+  <div class="boss-card" data-boss="Eye of Cthulhu" data-hp="2800" data-maxhp="50000" style="--boss-color:#cc3333">
+    <div class="boss-arena" style="background:linear-gradient(160deg,#1a0909,#120808);">
+      <div class="boss-sprite-wrap">
+        <img class="boss-sprite fly" src="https://terraria.wiki.gg/wiki/Special:FilePath/Eye_of_Cthulhu.png" alt="Eye of Cthulhu" style="max-width:150px">
+      </div>
+      <div class="boss-num">#02 · EYE OF CTHULHU</div>
+      <div class="boss-difficulty-pips">
+        <div class="pip filled"></div><div class="pip filled"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+      </div>
+    </div>
+    <div class="boss-info">
+      <div>
+        <span class="boss-type-badge" style="background:rgba(204,51,51,.15);color:#cc3333;border:1px solid rgba(204,51,51,.3)">PRE-HARDMODE · EARLY GAME</span>
+        <h3 class="boss-name">EYE OF CTHULHU</h3>
+      </div>
+      <div class="boss-hp-row">
+        <span class="boss-hp-label">HP</span>
+        <div class="boss-hp-bar"><div class="boss-hp-fill" data-w="6"></div></div>
+        <span class="boss-hp-val">2,800</span>
+      </div>
+      <p class="boss-desc">A massive flying eyeball — Cthulhu's severed eye — that charges at you in a spiral pattern. At 50% HP it transforms into a more aggressive second phase, revealing a toothed maw and spawning Servants of Cthulhu. This boss teaches players the core lesson of Terraria combat: keep moving.</p>
+      <div>
+        <p class="boss-strategy-title">⚡ STRATEGY</p>
+        <p class="boss-strategy">Fight at night on a long horizontal platform. Circle the boss by walking backwards while firing — its spiral dashes are predictable. In phase 2 it becomes faster and spawns minions; focus the main eye and ignore adds. A yoyo or bow weapon works excellently here.</p>
+      </div>
+      <div>
+        <p class="boss-gear-title">RECOMMENDED GEAR</p>
+        <div class="boss-gear-row">
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Tungsten_Bow.png" alt=""><span>Tungsten Bow</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Jester%27s_Arrow.png" alt=""><span>Jester Arrows</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Hermes_Boots.png" alt=""><span>Hermes Boots</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Gold_Helmet.png" alt=""><span>Gold Armor</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Mana_Flower.png" alt=""><span>Mana Flower</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 Eater of Worlds / Brain of Cthulhu -->
+  <div class="boss-card" data-boss="Eater of Worlds" data-hp="7500" data-maxhp="50000" style="--boss-color:#9933cc">
+    <div class="boss-arena" style="background:linear-gradient(160deg,#180a28,#120820);">
+      <div class="boss-sprite-wrap">
+        <img class="boss-sprite worm" src="https://terraria.wiki.gg/wiki/Special:FilePath/Eater_of_Worlds_Head.png" alt="Eater of Worlds" style="max-width:90px">
+      </div>
+      <div class="boss-num">#03 · EATER OF WORLDS</div>
+      <div class="boss-difficulty-pips">
+        <div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div><div class="pip"></div><div class="pip"></div>
+      </div>
+    </div>
+    <div class="boss-info">
+      <div>
+        <span class="boss-type-badge" style="background:rgba(153,51,204,.15);color:#9933cc;border:1px solid rgba(153,51,204,.3)">PRE-HARDMODE · CORRUPTION</span>
+        <h3 class="boss-name">EATER OF WORLDS</h3>
+      </div>
+      <div class="boss-hp-row">
+        <span class="boss-hp-label">HP</span>
+        <div class="boss-hp-bar"><div class="boss-hp-fill" data-w="15"></div></div>
+        <span class="boss-hp-val">7,500+</span>
+      </div>
+      <p class="boss-desc">A massive worm boss made of connected segments — each with its own HP pool. When segments are destroyed the worm splits into two smaller worms. Killing it yields Shadow Scales for crafting Shadow armor, essential mid-game gear. Crimson worlds get the Brain of Cthulhu instead.</p>
+      <div>
+        <p class="boss-strategy-title">⚡ STRATEGY</p>
+        <p class="boss-strategy">Fight in the Corruption using Grenades or a piercing weapon like the Vilethorn — hitting multiple segments at once is key. Don't destroy too many individual segments or you'll spawn multiple smaller worms. Aim to kill full worm sections, not split them endlessly. Platforms over the chasm work perfectly.</p>
+      </div>
+      <div>
+        <p class="boss-gear-title">RECOMMENDED GEAR</p>
+        <div class="boss-gear-row">
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Vilethorn.png" alt=""><span>Vilethorn</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Grenade.png" alt=""><span>Grenades</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Platinum_Helmet.png" alt=""><span>Platinum Armor</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Hermes_Boots.png" alt=""><span>Hermes Boots</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Band_of_Regeneration.png" alt=""><span>Regen Band</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 Queen Bee -->
+  <div class="boss-card" data-boss="Queen Bee" data-hp="3400" data-maxhp="50000" style="--boss-color:#f5c518">
+    <div class="boss-arena" style="background:linear-gradient(160deg,#1a1400,#141000);">
+      <div class="boss-sprite-wrap">
+        <img class="boss-sprite fly" src="https://terraria.wiki.gg/wiki/Special:FilePath/Queen_Bee.png" alt="Queen Bee" style="max-width:140px">
+      </div>
+      <div class="boss-num">#04 · QUEEN BEE</div>
+      <div class="boss-difficulty-pips">
+        <div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div><div class="pip"></div><div class="pip"></div>
+      </div>
+    </div>
+    <div class="boss-info">
+      <div>
+        <span class="boss-type-badge" style="background:rgba(245,197,24,.15);color:#f5c518;border:1px solid rgba(245,197,24,.3)">PRE-HARDMODE · OPTIONAL</span>
+        <h3 class="boss-name">QUEEN BEE</h3>
+      </div>
+      <div class="boss-hp-row">
+        <span class="boss-hp-label">HP</span>
+        <div class="boss-hp-bar"><div class="boss-hp-fill" data-w="7"></div></div>
+        <span class="boss-hp-val">3,400</span>
+      </div>
+      <p class="boss-desc">Found in the Underground Jungle, the Queen Bee charges, hovers and fires stingers while summoning bees. She's one of the most rewarding optional pre-HM bosses — dropping the Bee's Knees, Bee Gun, and the incredibly useful Honey Comb accessory.</p>
+      <div>
+        <p class="boss-strategy-title">⚡ STRATEGY</p>
+        <p class="boss-strategy">Create a wide arena inside or just outside the Jungle. She alternates between charge attacks and stinger volleys — learn the pattern and dodge accordingly. The Bee Gun she drops is a great weapon for fighting Skeletron. Her honey debuff slows you, so dodge the stingers first. Meteor Armor with Space Gun works beautifully here.</p>
+      </div>
+      <div>
+        <p class="boss-gear-title">RECOMMENDED GEAR</p>
+        <div class="boss-gear-row">
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Space_Gun.png" alt=""><span>Space Gun</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Meteor_Helmet.png" alt=""><span>Meteor Armor</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Band_of_Starpower.png" alt=""><span>Band of Starpower</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Hermes_Boots.png" alt=""><span>Hermes Boots</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Minishark.png" alt=""><span>Minishark</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 Skeletron -->
+  <div class="boss-card" data-boss="Skeletron" data-hp="4400" data-maxhp="50000" style="--boss-color:#b0b0d0">
+    <div class="boss-arena" style="background:linear-gradient(160deg,#0e0e18,#0c0c14);">
+      <div class="boss-sprite-wrap">
+        <img class="boss-sprite fly" src="https://terraria.wiki.gg/wiki/Special:FilePath/Skeletron_Head.png" alt="Skeletron" style="max-width:130px">
+      </div>
+      <div class="boss-num">#05 · SKELETRON</div>
+      <div class="boss-difficulty-pips">
+        <div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div><div class="pip"></div>
+      </div>
+    </div>
+    <div class="boss-info">
+      <div>
+        <span class="boss-type-badge" style="background:rgba(176,176,208,.12);color:#b0b0d0;border:1px solid rgba(176,176,208,.25)">PRE-HARDMODE · DUNGEON GATE</span>
+        <h3 class="boss-name">SKELETRON</h3>
+      </div>
+      <div class="boss-hp-row">
+        <span class="boss-hp-label">HP</span>
+        <div class="boss-hp-bar"><div class="boss-hp-fill" data-w="9"></div></div>
+        <span class="boss-hp-val">4,400</span>
+      </div>
+      <p class="boss-desc">Guardian of the Dungeon. Defeat Skeletron to access the Dungeon, one of the most loot-rich areas in the game. He consists of a spinning head and two hands. Must be defeated before sunrise — if dawn breaks he instantly kills you with a single hit.</p>
+      <div>
+        <p class="boss-strategy-title">⚡ STRATEGY</p>
+        <p class="boss-strategy">Destroy both hands first — they deal significant damage and block shots aimed at his head. Once both hands are gone, focus the head. His spin attack is his most dangerous move: use wings or a grappling hook to avoid it. Prioritize movement speed accessories. If you're running low on time, disengage and wait for the next night.</p>
+      </div>
+      <div>
+        <p class="boss-gear-title">RECOMMENDED GEAR</p>
+        <div class="boss-gear-row">
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Bee%27s_Knees.png" alt=""><span>Bee's Knees</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Shadow_Helmet.png" alt=""><span>Shadow Armor</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Spectre_Boots.png" alt=""><span>Spectre Boots</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Mana_Flower.png" alt=""><span>Mana Flower</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Band_of_Regeneration.png" alt=""><span>Regen Band</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 06 Wall of Flesh -->
+  <div class="boss-card" data-boss="Wall of Flesh" data-hp="8000" data-maxhp="50000" style="--boss-color:#ff3300">
+    <div class="boss-arena" style="background:linear-gradient(160deg,#1a0500,#140300);">
+      <div class="boss-sprite-wrap">
+        <img class="boss-sprite slam" src="https://terraria.wiki.gg/wiki/Special:FilePath/Wall_of_Flesh_mouth.png" alt="Wall of Flesh" style="max-width:130px">
+      </div>
+      <div class="boss-num">#06 · WALL OF FLESH</div>
+      <div class="boss-difficulty-pips">
+        <div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div>
+      </div>
+    </div>
+    <div class="boss-info">
+      <div>
+        <span class="boss-type-badge" style="background:rgba(255,51,0,.15);color:#ff3300;border:1px solid rgba(255,51,0,.3)">PRE-HARDMODE · FINAL BOSS</span>
+        <h3 class="boss-name">WALL OF FLESH</h3>
+      </div>
+      <div class="boss-hp-row">
+        <span class="boss-hp-label">HP</span>
+        <div class="boss-hp-bar"><div class="boss-hp-fill" data-w="16"></div></div>
+        <span class="boss-hp-val">8,000</span>
+      </div>
+      <p class="boss-desc">The final pre-Hardmode boss and the gatekeeper to an entirely new game. The Wall of Flesh spans the entire height of the Underworld and pushes you toward the edge of the map. Destroying it permanently triggers Hardmode — spreading Corruption and Hallow across your world.</p>
+      <div>
+        <p class="boss-strategy-title">⚡ STRATEGY</p>
+        <p class="boss-strategy">Build a long platform track spanning the entire Underworld — minimum 2000 blocks. Use Minecart or Wings to keep ahead of the wall. Attack both the Eyes and the Mouth. The Hungries (tentacle minions) get more numerous as HP drops. Prioritize movement and burst the Eyes down fast. Hellfire Arrows and a Molten Fury bow melt this boss.</p>
+      </div>
+      <div>
+        <p class="boss-gear-title">RECOMMENDED GEAR</p>
+        <div class="boss-gear-row">
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Molten_Fury.png" alt=""><span>Molten Fury</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Hellfire_Arrow.png" alt=""><span>Hellfire Arrows</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Molten_Helmet.png" alt=""><span>Molten Armor</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Obsidian_Shield.png" alt=""><span>Obsidian Shield</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Minecart.png" alt=""><span>Minecart</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── HARDMODE ERA ─── -->
+  <div class="era-divider hm"><span class="era-tag hm">🔥 HARDMODE</span></div>
+
+  <!-- 07 The Destroyer -->
+  <div class="boss-card" data-boss="The Destroyer" data-hp="80000" data-maxhp="200000" style="--boss-color:#888888">
+    <div class="boss-arena" style="background:linear-gradient(160deg,#111111,#0c0c0c);">
+      <div class="boss-sprite-wrap">
+        <img class="boss-sprite worm" src="https://terraria.wiki.gg/wiki/Special:FilePath/The_Destroyer_Head.png" alt="The Destroyer" style="max-width:110px">
+      </div>
+      <div class="boss-num">#07 · THE DESTROYER</div>
+      <div class="boss-difficulty-pips">
+        <div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div><div class="pip"></div><div class="pip"></div>
+      </div>
+    </div>
+    <div class="boss-info">
+      <div>
+        <span class="boss-type-badge" style="background:rgba(136,136,136,.12);color:#888;border:1px solid rgba(136,136,136,.25)">HARDMODE · MECHANICAL</span>
+        <h3 class="boss-name">THE DESTROYER</h3>
+      </div>
+      <div class="boss-hp-row">
+        <span class="boss-hp-label">HP</span>
+        <div class="boss-hp-bar"><div class="boss-hp-fill" data-w="40"></div></div>
+        <span class="boss-hp-val">80,000</span>
+      </div>
+      <p class="boss-desc">A mechanical Eater of Worlds made of steel segments that shoot lasers. Unlike the Eater of Worlds, killing individual segments does NOT split it — the whole worm must be destroyed. Each segment fires Probes that spawn and attack independently, making the arena quickly overwhelming.</p>
+      <div>
+        <p class="boss-strategy-title">⚡ STRATEGY</p>
+        <p class="boss-strategy">Use piercing weapons — the Dao of Pow, Star Cannon, or a Crystal Serpent to hit multiple segments per shot. Build a high skybridge and use wings to stay above him. Kill Probes fast to prevent laser spam. Daedalus Stormbow with Holy Arrows is one of the strongest options here — it fires arrows straight down through the entire boss body.</p>
+      </div>
+      <div>
+        <p class="boss-gear-title">RECOMMENDED GEAR</p>
+        <div class="boss-gear-row">
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Daedalus_Stormbow.png" alt=""><span>Daedalus Stormbow</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Holy_Arrow.png" alt=""><span>Holy Arrows</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Hallowed_Helmet.png" alt=""><span>Hallowed Armor</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Wings.png" alt=""><span>Wings</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Megashark.png" alt=""><span>Megashark</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 08 The Twins -->
+  <div class="boss-card" data-boss="The Twins" data-hp="43000" data-maxhp="200000" style="--boss-color:#cc0000">
+    <div class="boss-arena" style="background:linear-gradient(160deg,#1a0808,#120505);">
+      <div class="boss-sprite-wrap" style="display:flex;gap:16px;align-items:center;">
+        <img class="boss-sprite fly" src="https://terraria.wiki.gg/wiki/Special:FilePath/Spazmatism.png" alt="Spazmatism" style="max-width:90px;animation-delay:.6s">
+        <img class="boss-sprite fly" src="https://terraria.wiki.gg/wiki/Special:FilePath/Retinazer.png" alt="Retinazer" style="max-width:90px">
+      </div>
+      <div class="boss-num">#08 · THE TWINS</div>
+      <div class="boss-difficulty-pips">
+        <div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div><div class="pip"></div>
+      </div>
+    </div>
+    <div class="boss-info">
+      <div>
+        <span class="boss-type-badge" style="background:rgba(204,0,0,.15);color:#cc0000;border:1px solid rgba(204,0,0,.3)">HARDMODE · MECHANICAL</span>
+        <h3 class="boss-name">THE TWINS</h3>
+      </div>
+      <div class="boss-hp-row">
+        <span class="boss-hp-label">HP</span>
+        <div class="boss-hp-bar"><div class="boss-hp-fill" data-w="22"></div></div>
+        <span class="boss-hp-val">43,000 combined</span>
+      </div>
+      <p class="boss-desc">Two mechanical eyes — Retinazer (fires lasers) and Spazmatism (spits cursed fire and charges). They each have two phases. If one eye is killed while the other remains, the surviving eye enters a supercharged second phase with dramatically increased aggression. The hardest mechanical boss.</p>
+      <div>
+        <p class="boss-strategy-title">⚡ STRATEGY</p>
+        <p class="boss-strategy">Reduce both eyes to near-death simultaneously before killing either, or the survivor goes berserk. Spazmatism is more dangerous — kill it slightly before Retinazer. Use high-mobility accessories and a Nimbus Rod to deal passive damage. An arena with multiple rope layers helps with vertical movement. The Death Sickle or Daedalus Stormbow with Holy Arrows are top picks.</p>
+      </div>
+      <div>
+        <p class="boss-gear-title">RECOMMENDED GEAR</p>
+        <div class="boss-gear-row">
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Death_Sickle.png" alt=""><span>Death Sickle</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Daedalus_Stormbow.png" alt=""><span>Stormbow</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Hallowed_Helmet.png" alt=""><span>Hallowed Armor</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Cross_Necklace.png" alt=""><span>Cross Necklace</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Nimbus_Rod.png" alt=""><span>Nimbus Rod</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 09 Skeletron Prime -->
+  <div class="boss-card" data-boss="Skeletron Prime" data-hp="28000" data-maxhp="200000" style="--boss-color:#d0c080">
+    <div class="boss-arena" style="background:linear-gradient(160deg,#151510,#100e08);">
+      <div class="boss-sprite-wrap">
+        <img class="boss-sprite fly" src="https://terraria.wiki.gg/wiki/Special:FilePath/Skeletron_Prime_Head.png" alt="Skeletron Prime" style="max-width:130px">
+      </div>
+      <div class="boss-num">#09 · SKELETRON PRIME</div>
+      <div class="boss-difficulty-pips">
+        <div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div><div class="pip"></div><div class="pip"></div>
+      </div>
+    </div>
+    <div class="boss-info">
+      <div>
+        <span class="boss-type-badge" style="background:rgba(208,192,128,.12);color:#d0c080;border:1px solid rgba(208,192,128,.25)">HARDMODE · MECHANICAL</span>
+        <h3 class="boss-name">SKELETRON PRIME</h3>
+      </div>
+      <div class="boss-hp-row">
+        <span class="boss-hp-label">HP</span>
+        <div class="boss-hp-bar"><div class="boss-hp-fill" data-w="14"></div></div>
+        <span class="boss-hp-val">28,000</span>
+      </div>
+      <p class="boss-desc">The mechanical counterpart to Skeletron. Sports a laser gun, vice, saw, and cannon arm — four deadly appendages that can overwhelm you if left alive. Like its predecessor, it kills you instantly if it survives until dawn. Defeating all three mechanical bosses triggers Plantera.</p>
+      <div>
+        <p class="boss-strategy-title">⚡ STRATEGY</p>
+        <p class="boss-strategy">Destroy the arms one by one — prioritize the laser gun arm first as it deals the most consistent damage. Once all arms are down, the head becomes significantly more vulnerable. The head spins rapidly when attacked — create a large open arena for horizontal movement. Ichor arrows or Ichor Flask debuff dramatically boost your damage output here.</p>
+      </div>
+      <div>
+        <p class="boss-gear-title">RECOMMENDED GEAR</p>
+        <div class="boss-gear-row">
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Megashark.png" alt=""><span>Megashark</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Crystal_Bullet.png" alt=""><span>Crystal Bullets</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Titanium_Helmet.png" alt=""><span>Titanium Armor</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Lightning_Boots.png" alt=""><span>Lightning Boots</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Ichor_Arrow.png" alt=""><span>Ichor Arrows</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 Plantera -->
+  <div class="boss-card" data-boss="Plantera" data-hp="30000" data-maxhp="200000" style="--boss-color:#3fdc6e">
+    <div class="boss-arena" style="background:linear-gradient(160deg,#061208,#041008);">
+      <div class="boss-sprite-wrap">
+        <img class="boss-sprite fly" src="https://terraria.wiki.gg/wiki/Special:FilePath/Plantera.png" alt="Plantera" style="max-width:150px">
+      </div>
+      <div class="boss-num">#10 · PLANTERA</div>
+      <div class="boss-difficulty-pips">
+        <div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div><div class="pip"></div>
+      </div>
+    </div>
+    <div class="boss-info">
+      <div>
+        <span class="boss-type-badge" style="background:rgba(63,220,110,.12);color:#3fdc6e;border:1px solid rgba(63,220,110,.25)">HARDMODE · JUNGLE GUARDIAN</span>
+        <h3 class="boss-name">PLANTERA</h3>
+      </div>
+      <div class="boss-hp-row">
+        <span class="boss-hp-label">HP</span>
+        <div class="boss-hp-bar"><div class="boss-hp-fill" data-w="15"></div></div>
+        <span class="boss-hp-val">30,000</span>
+      </div>
+      <p class="boss-desc">The true hardmode difficulty spike. Plantera must be fought in the Underground Jungle and pulls itself toward you on vine hooks. In phase 2 it sheds its outer petals to reveal a carnivorous core, gaining dramatically increased speed and firing a barrage of seeds, spores, and Plantera's Tentacles.</p>
+      <div>
+        <p class="boss-strategy-title">⚡ STRATEGY</p>
+        <p class="boss-strategy">Dig a large circular arena (minimum 80x80 tiles) in the Jungle. Move in large circles — Plantera can only move as fast as her hooks allow. In phase 2 keep circling and avoid the tentacle spawns. Chlorophyte Bullets with a Megashark auto-aim at her bulbs. The Scourge of the Corruptor or Crystal Vile Shard work well for phase 2 especially.</p>
+      </div>
+      <div>
+        <p class="boss-gear-title">RECOMMENDED GEAR</p>
+        <div class="boss-gear-row">
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Megashark.png" alt=""><span>Megashark</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Chlorophyte_Bullet.png" alt=""><span>Chlorophyte Bullets</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Titanium_Helmet.png" alt=""><span>Titanium Armor</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Uzi.png" alt=""><span>Uzi</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Piranha_Gun.png" alt=""><span>Piranha Gun</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11 Golem -->
+  <div class="boss-card" data-boss="Golem" data-hp="9000" data-maxhp="200000" style="--boss-color:#c87820">
+    <div class="boss-arena" style="background:linear-gradient(160deg,#1a1008,#120c06);">
+      <div class="boss-sprite-wrap">
+        <img class="boss-sprite slam" src="https://terraria.wiki.gg/wiki/Special:FilePath/Golem_Head.png" alt="Golem" style="max-width:130px">
+      </div>
+      <div class="boss-num">#11 · GOLEM</div>
+      <div class="boss-difficulty-pips">
+        <div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div><div class="pip"></div><div class="pip"></div>
+      </div>
+    </div>
+    <div class="boss-info">
+      <div>
+        <span class="boss-type-badge" style="background:rgba(200,120,32,.12);color:#c87820;border:1px solid rgba(200,120,32,.25)">HARDMODE · TEMPLE</span>
+        <h3 class="boss-name">GOLEM</h3>
+      </div>
+      <div class="boss-hp-row">
+        <span class="boss-hp-label">HP</span>
+        <div class="boss-hp-bar"><div class="boss-hp-fill" data-w="10"></div></div>
+        <span class="boss-hp-val">9,000 head</span>
+      </div>
+      <p class="boss-desc">A stone colossus fought in the Lihzahrd Temple after defeating Plantera. Known for being one of the easiest hardmode bosses — mostly because by the time you reach it you're massively overpowered. Fires laser beams, summons fists, and has a detachable head phase.</p>
+      <div>
+        <p class="boss-strategy-title">⚡ STRATEGY</p>
+        <p class="boss-strategy">Destroy the fists first, then focus the head. In phase 2 the head detaches and flies freely — it's significantly faster, so keep moving. The temple floor provides convenient solid ground. Almost any endgame weapon melts Golem quickly. Stardust Dragon or Twins-era equipment trivializes this fight completely.</p>
+      </div>
+      <div>
+        <p class="boss-gear-title">RECOMMENDED GEAR</p>
+        <div class="boss-gear-row">
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Terra_Blade.png" alt=""><span>Terra Blade</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Chlorophyte_Helmet.png" alt=""><span>Chlorophyte Armor</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Destroyer_Emblem.png" alt=""><span>Destroyer Emblem</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Stardust_Dragon_Staff.png" alt=""><span>Stardust Dragon</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Celestial_Shell.png" alt=""><span>Celestial Shell</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12 Lunatic Cultist -->
+  <div class="boss-card" data-boss="Lunatic Cultist" data-hp="32000" data-maxhp="200000" style="--boss-color:#9d6eff">
+    <div class="boss-arena" style="background:linear-gradient(160deg,#100820,#0c0618);">
+      <div class="boss-sprite-wrap">
+        <img class="boss-sprite fly" src="https://terraria.wiki.gg/wiki/Special:FilePath/Lunatic_Cultist.png" alt="Lunatic Cultist" style="max-width:120px">
+      </div>
+      <div class="boss-num">#12 · LUNATIC CULTIST</div>
+      <div class="boss-difficulty-pips">
+        <div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div><div class="pip"></div>
+      </div>
+    </div>
+    <div class="boss-info">
+      <div>
+        <span class="boss-type-badge" style="background:rgba(157,110,255,.12);color:#9d6eff;border:1px solid rgba(157,110,255,.25)">HARDMODE · LUNAR GATEWAY</span>
+        <h3 class="boss-name">LUNATIC CULTIST</h3>
+      </div>
+      <div class="boss-hp-row">
+        <span class="boss-hp-label">HP</span>
+        <div class="boss-hp-bar"><div class="boss-hp-fill" data-w="16"></div></div>
+        <span class="boss-hp-val">32,000</span>
+      </div>
+      <p class="boss-desc">The gateway to the Lunar Events and endgame. A sorcerer with four elemental dragons that it can summon. One key mechanic: if you attack a Cultist Clone (instead of the real one) during the ritual phase, the Lunatic Cultist regains health and resets. Identifying the real cultist is the challenge.</p>
+      <div>
+        <p class="boss-strategy-title">⚡ STRATEGY</p>
+        <p class="boss-strategy">During the clone ritual, wait for all cultists to appear and then attack the one that is NOT casting a symbol. The real Lunatic Cultist is always the one offset from the group during the ritual. During combat, dodge all projectiles aggressively — he summons Ancient Ice, Lightning, and Fire projectiles in rotation. High DPS weapons end the fight before patterns get overwhelming.</p>
+      </div>
+      <div>
+        <p class="boss-gear-title">RECOMMENDED GEAR</p>
+        <div class="boss-gear-row">
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Razorblade_Typhoon.png" alt=""><span>Razorblade Typhoon</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Spectre_Helmet.png" alt=""><span>Spectre Armor</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Celestial_Shell.png" alt=""><span>Celestial Shell</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Sniper_Rifle.png" alt=""><span>Sniper Rifle</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Leaf_Blower.png" alt=""><span>Leaf Blower</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13 Moon Lord -->
+  <div class="boss-card" data-boss="Moon Lord" data-hp="145000" data-maxhp="200000" style="--boss-color:#c8b8ff">
+    <div class="boss-arena" style="background:linear-gradient(160deg,#08061a,#060412);">
+      <div class="boss-sprite-wrap">
+        <img class="boss-sprite fly" src="https://terraria.wiki.gg/wiki/Special:FilePath/Moon_Lord_Head.png" alt="Moon Lord" style="max-width:150px">
+      </div>
+      <div class="boss-num">#13 · MOON LORD</div>
+      <div class="boss-difficulty-pips">
+        <div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div><div class="pip filled"></div>
+      </div>
+    </div>
+    <div class="boss-info">
+      <div>
+        <span class="boss-type-badge" style="background:rgba(200,184,255,.1);color:#c8b8ff;border:1px solid rgba(200,184,255,.2)">HARDMODE · FINAL BOSS</span>
+        <h3 class="boss-name">MOON LORD</h3>
+      </div>
+      <div class="boss-hp-row">
+        <span class="boss-hp-label">HP</span>
+        <div class="boss-hp-bar"><div class="boss-hp-fill" data-w="73"></div></div>
+        <span class="boss-hp-val">145,000 total</span>
+      </div>
+      <p class="boss-desc">The supreme boss of Terraria — Cthulhu's brother, with 145,000 total HP spread across two hand eyes, a forehead eye, and a core. His True Eye of Cthulhu attack fires an unavoidable Moon Bite debuff that blocks life regen. Each of his eyes must be destroyed before the core is exposed. Drops all four endgame fragment weapons.</p>
+      <div>
+        <p class="boss-strategy-title">⚡ STRATEGY</p>
+        <p class="boss-strategy">Build a massive skybridge with campfires, heart lanterns, and a nurse for emergency healing. Prioritize one hand at a time, then the forehead eye — destroying them exposes the core. Use the Nurse to heal during the True Eye phase. The Zenith, Last Prism, Phantasm with Holy Arrows, and Stardust Dragon all obliterate this boss. Dodge the Phantasmal Deathray by moving vertically — it only tracks horizontally.</p>
+      </div>
+      <div>
+        <p class="boss-gear-title">RECOMMENDED GEAR</p>
+        <div class="boss-gear-row">
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Phantasm.png" alt=""><span>Phantasm</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Holy_Arrow.png" alt=""><span>Holy Arrows</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Solar_Flare_Helmet.png" alt=""><span>Solar Flare</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Stardust_Dragon_Staff.png" alt=""><span>Stardust Dragon</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Last_Prism.png" alt=""><span>Last Prism</span></div>
+          <div class="boss-gear-item"><img src="https://terraria.wiki.gg/wiki/Special:FilePath/Zenith.png" alt=""><span>Zenith</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══════════════════════════════════ WEAPONS REFERENCE ══════════════════════ -->
+<section class="weapons-ref">
+  <div class="container">
+    <p class="wref-title">ALL FEATURED ITEMS AT A GLANCE</p>
+    <div class="wgrid" id="wgrid"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ FOOTER ══════════════════════════════════ -->
+<footer class="site-footer">
+  <span class="footer-logo">⚒ TERRARIA CLASS COMPENDIUM</span>
+  <p class="footer-text">A fan-made guide to endgame builds. Terraria is developed by Re-Logic.<br>All game content, sprites, and item names belong to Re-Logic.</p>
+  <div class="footer-links">
+    <a href="#melee"    style="color:var(--melee)">⚔ MELEE</a>
+    <a href="#ranger"   style="color:var(--ranger)">🏹 RANGER</a>
+    <a href="#mage"     style="color:var(--mage)">✨ MAGE</a>
+    <a href="#summoner" style="color:var(--summoner)">🌟 SUMMONER</a>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════════
+//  CURSOR ENGINE
+// ══════════════════════════════════════════════════════════════════
+const cursorCanvas = document.getElementById('cursor-canvas');
+const ctx          = cursorCanvas.getContext('2d');
+const cursorEl     = document.getElementById('custom-cursor');
+
+// resize canvas to viewport
+function resizeCanvas() {
+  cursorCanvas.width  = window.innerWidth;
+  cursorCanvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// ── state
+let curMode    = 'none';
+let mouseX     = -999, mouseY = -999;
+let particles  = [];
+let dragonSegs = [];
+const DRAGON_SEGS = 18;
+
+// ── HUD buttons
+document.querySelectorAll('.chud-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const cls = btn.dataset.class;
+    document.querySelectorAll('.chud-btn').forEach(b => b.classList.remove('active'));
+    if (cls === 'none' || cls === curMode) {
+      curMode = 'none';
+      document.body.classList.remove('cur-active');
+      cursorEl.style.display = 'none';
+      particles = []; dragonSegs = [];
+    } else {
+      curMode = cls;
+      document.body.classList.add('cur-active');
+      btn.classList.add('active');
+      cursorEl.style.display = 'block';
+      particles = [];
+      if (cls === 'summoner') initDragon();
+    }
+  });
+});
+
+// also activate when hero nav class buttons are clicked
+document.querySelectorAll('.hbtn, .nav-links a').forEach(a => {
+  const href = a.getAttribute('href') || '';
+  const cls  = href.replace('#','');
+  if (['melee','ranger','mage','summoner'].includes(cls)) {
+    a.addEventListener('click', () => {
+      const hudBtn = document.querySelector(`.chud-btn[data-class="${cls}"]`);
+      if (hudBtn) hudBtn.click();
+    });
+  }
+});
+
+// ── track mouse
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  if (curMode !== 'none') {
+    cursorEl.style.left = mouseX + 'px';
+    cursorEl.style.top  = mouseY + 'px';
+  }
+  if (curMode === 'melee')   spawnFlameParticles(mouseX, mouseY);
+  if (curMode === 'mage')    spawnMistParticles(mouseX, mouseY);
+});
+
+// ── click effects
+document.addEventListener('click', e => {
+  if (curMode === 'ranger') fireRangerLaser(e.clientX, e.clientY);
+  if (curMode === 'melee')  spawnFlameParticles(e.clientX, e.clientY, 18);
+  if (curMode === 'mage')   spawnMistBurst(e.clientX, e.clientY);
+  if (curMode === 'summoner') spawnSummonerBurst(e.clientX, e.clientY);
+});
+
+// ══ CURSOR VISUALS per mode ══
+function buildCursorSVG(mode) {
+  const svgs = {
+    melee: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+      <!-- flame cursor -->
+      <ellipse cx="20" cy="30" rx="7" ry="9" fill="#ff4500" opacity=".9"/>
+      <ellipse cx="20" cy="24" rx="5" ry="8" fill="#ff7b00" opacity=".85"/>
+      <ellipse cx="19" cy="18" rx="3.5" ry="6" fill="#ffbe00"/>
+      <ellipse cx="20" cy="14" rx="2" ry="4" fill="#fff3b0"/>
+      <ellipse cx="16" cy="26" rx="3" ry="5" fill="#ff6b35" opacity=".7"/>
+      <ellipse cx="24" cy="25" rx="2.5" ry="4" fill="#ff8800" opacity=".6"/>
+    </svg>`,
+
+    ranger: `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44">
+      <!-- scope reticle -->
+      <circle cx="22" cy="22" r="18" fill="none" stroke="#3fdc6e" stroke-width="1.5" opacity=".9"/>
+      <circle cx="22" cy="22" r="10" fill="none" stroke="#3fdc6e" stroke-width="1" opacity=".7"/>
+      <circle cx="22" cy="22" r="2.5" fill="#3fdc6e" opacity=".95"/>
+      <!-- crosshairs -->
+      <line x1="22" y1="2"  x2="22" y2="10" stroke="#3fdc6e" stroke-width="1.5" opacity=".9"/>
+      <line x1="22" y1="34" x2="22" y2="42" stroke="#3fdc6e" stroke-width="1.5" opacity=".9"/>
+      <line x1="2"  y1="22" x2="10" y2="22" stroke="#3fdc6e" stroke-width="1.5" opacity=".9"/>
+      <line x1="34" y1="22" x2="42" y2="22" stroke="#3fdc6e" stroke-width="1.5" opacity=".9"/>
+      <!-- tick marks -->
+      <line x1="22" y1="11" x2="22" y2="14" stroke="#3fdc6e" stroke-width="1" opacity=".5"/>
+      <line x1="22" y1="30" x2="22" y2="33" stroke="#3fdc6e" stroke-width="1" opacity=".5"/>
+      <line x1="11" y1="22" x2="14" y2="22" stroke="#3fdc6e" stroke-width="1" opacity=".5"/>
+      <line x1="30" y1="22" x2="33" y2="22" stroke="#3fdc6e" stroke-width="1" opacity=".5"/>
+    </svg>`,
+
+    mage: `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+      <!-- magic wand / star cursor -->
+      <polygon points="18,2 20.5,12 30,10 22,17 26,27 18,21 10,27 14,17 6,10 15.5,12"
+        fill="#9d6eff" stroke="#c8b8ff" stroke-width=".8" opacity=".95"/>
+      <circle cx="18" cy="18" r="4" fill="#e0d0ff" opacity=".8"/>
+    </svg>`,
+
+    summoner: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+      <!-- stardust dragon head simplified -->
+      <circle cx="16" cy="16" r="9" fill="#4488ff" opacity=".15"/>
+      <ellipse cx="16" cy="15" rx="7" ry="6" fill="#88aaff" opacity=".9"/>
+      <circle cx="13" cy="13" r="2" fill="#fff" opacity=".95"/>
+      <circle cx="13" cy="13" r="1" fill="#2244cc"/>
+      <circle cx="19" cy="13" r="2" fill="#fff" opacity=".95"/>
+      <circle cx="19" cy="13" r="1" fill="#2244cc"/>
+      <polygon points="10,9 12,5 14,9" fill="#aaccff" opacity=".8"/>
+      <polygon points="22,9 20,5 18,9" fill="#aaccff" opacity=".8"/>
+      <ellipse cx="16" cy="21" rx="4" ry="2.5" fill="#6699ff" opacity=".6"/>
+    </svg>`
+  };
+  return svgs[mode] || '';
+}
+
+function setCursorVisual(mode) {
+  const svg = buildCursorSVG(mode);
+  if (!svg) { cursorEl.innerHTML=''; return; }
+  cursorEl.innerHTML = svg;
+  // center offset based on mode
+  const offsets = { melee:'-50% -85%', ranger:'-50% -50%', mage:'-50% -80%', summoner:'-50% -60%' };
+  cursorEl.style.transform = `translate(${offsets[mode]||'-50% -50%'})`;
+}
+
+// watch mode changes
+const _origMode = Object.getOwnPropertyDescriptor(window,'curMode');
+let _lastMode = '';
+function checkModeChange() {
+  if (curMode !== _lastMode) {
+    _lastMode = curMode;
+    setCursorVisual(curMode);
+  }
+  requestAnimationFrame(checkModeChange);
+}
+checkModeChange();
+
+// ══ FLAME PARTICLES (melee) ══
+function spawnFlameParticles(x, y, count=4) {
+  for (let i=0; i<count; i++) {
+    const ang  = Math.random() * Math.PI * 2;
+    const spd  = 0.5 + Math.random() * 2.5;
+    const life = 28 + Math.random() * 22;
+    const size = 4 + Math.random() * 7;
+    const colors = ['#ff4500','#ff6b35','#ff8c00','#ffbe00','#fff3b0'];
+    particles.push({
+      type:'flame', x, y,
+      vx: Math.cos(ang)*spd * .4,
+      vy: Math.sin(ang)*spd - 1.8 - Math.random()*1.5,
+      life, maxLife: life, size,
+      color: colors[Math.floor(Math.random()*colors.length)]
+    });
+  }
+}
+
+// ══ MIST PARTICLES (mage) ══
+function spawnMistParticles(x, y, count=3) {
+  for (let i=0; i<count; i++) {
+    const ang  = Math.random() * Math.PI * 2;
+    const spd  = 0.3 + Math.random() * 1.2;
+    const life = 40 + Math.random() * 30;
+    const size = 6 + Math.random() * 14;
+    const blues = ['rgba(120,80,255,', 'rgba(157,110,255,', 'rgba(180,140,255,', 'rgba(200,180,255,'];
+    particles.push({
+      type:'mist', x, y,
+      vx: Math.cos(ang)*spd,
+      vy: Math.sin(ang)*spd - 0.4,
+      life, maxLife: life, size,
+      colorBase: blues[Math.floor(Math.random()*blues.length)]
+    });
+  }
+}
+function spawnMistBurst(x, y) {
+  for (let i=0; i<20; i++) spawnMistParticles(x, y, 1);
+}
+
+// ══ SUMMONER BURST ══
+function spawnSummonerBurst(x, y) {
+  for (let i=0; i<16; i++) {
+    const ang  = (i / 16) * Math.PI * 2;
+    const spd  = 2 + Math.random() * 3;
+    const life = 35 + Math.random() * 20;
+    particles.push({
+      type:'star', x, y,
+      vx: Math.cos(ang)*spd,
+      vy: Math.sin(ang)*spd,
+      life, maxLife: life, size: 3 + Math.random()*4,
+      color: ['#4488ff','#88aaff','#aaccff','#ffbe00'][Math.floor(Math.random()*4)]
+    });
+  }
+}
+
+// ══ DRAGON SEGMENTS (summoner) ══
+function initDragon() {
+  dragonSegs = [];
+  for (let i=0; i<DRAGON_SEGS; i++) {
+    dragonSegs.push({ x: mouseX, y: mouseY, angle: 0 });
+  }
+}
+
+function updateDragon() {
+  if (!dragonSegs.length) return;
+  // head follows mouse with slight lag
+  const head = dragonSegs[0];
+  const dx = mouseX - head.x;
+  const dy = mouseY - head.y;
+  head.x += dx * 0.18;
+  head.y += dy * 0.18;
+  head.angle = Math.atan2(dy, dx);
+  // each segment follows the one ahead
+  const SEG_DIST = 11;
+  for (let i=1; i<dragonSegs.length; i++) {
+    const prev = dragonSegs[i-1];
+    const seg  = dragonSegs[i];
+    const adx  = prev.x - seg.x;
+    const ady  = prev.y - seg.y;
+    const dist = Math.sqrt(adx*adx + ady*ady);
+    if (dist > SEG_DIST) {
+      const ratio = (dist - SEG_DIST) / dist;
+      seg.x += adx * ratio * 0.55;
+      seg.y += ady * ratio * 0.55;
+    }
+    seg.angle = Math.atan2(ady, adx);
+  }
+}
+
+function drawDragon() {
+  if (!dragonSegs.length) return;
+  dragonSegs.forEach((seg, i) => {
+    const t      = i / (DRAGON_SEGS-1);
+    const radius = 9 - t * 5;                    // taper
+    const alpha  = 0.9 - t * 0.35;
+    const r      = Math.round(68  + t * 40);      // blue → lighter
+    const g      = Math.round(136 + t * 50);
+    const b      = 255;
+
+    ctx.save();
+    ctx.translate(seg.x, seg.y);
+    ctx.rotate(seg.angle);
+
+    // body segment — rounded rectangle feel
+    ctx.beginPath();
+    ctx.ellipse(0, 0, radius, radius * 0.7, 0, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+    ctx.fill();
+
+    // glow
+    const grd = ctx.createRadialGradient(0,0,0, 0,0, radius*1.8);
+    grd.addColorStop(0, `rgba(${r},${g},${b},${alpha*.5})`);
+    grd.addColorStop(1, 'transparent');
+    ctx.beginPath();
+    ctx.arc(0, 0, radius*1.8, 0, Math.PI*2);
+    ctx.fillStyle = grd;
+    ctx.fill();
+
+    // draw eyes on head
+    if (i === 0) {
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(-3, -4, 2.5, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc( 3, -4, 2.5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#1122cc';
+      ctx.beginPath(); ctx.arc(-3, -4, 1.2, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc( 3, -4, 1.2, 0, Math.PI*2); ctx.fill();
+      // horns
+      ctx.strokeStyle = '#aaccff';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(-4,-6); ctx.lineTo(-7,-11); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo( 4,-6); ctx.lineTo( 7,-11); ctx.stroke();
+    }
+    ctx.restore();
+  });
+  // trailing stardust particles from tail
+  const tail = dragonSegs[DRAGON_SEGS-1];
+  if (Math.random() < .4) {
+    particles.push({
+      type:'star', x: tail.x + (Math.random()-0.5)*6, y: tail.y + (Math.random()-0.5)*6,
+      vx: (Math.random()-.5)*1.2, vy: (Math.random()-.5)*1.2 - .5,
+      life: 20+Math.random()*15, maxLife:35,
+      size: 1.5+Math.random()*3,
+      color: ['#4488ff','#88aaff','#aaccff','#ffbe00'][Math.floor(Math.random()*4)]
+    });
+  }
+}
+
+// ══ RANGER LASER ══
+function fireRangerLaser(cx, cy) {
+  // random target direction with spread
+  const spreadAngles = [0, -0.04, 0.04, -0.08, 0.08];
+  spreadAngles.forEach((spread, i) => {
+    setTimeout(() => {
+      // fire from cursor to edge of screen
+      const angle = (Math.random() > .5 ? 0 : Math.PI) + spread + (Math.random()-.5)*.3;
+      const len   = Math.max(window.innerWidth, window.innerHeight) * 1.5;
+      const ex    = cx + Math.cos(angle) * len;
+      const ey    = cy + Math.sin(angle) * len;
+      const beam  = document.createElement('div');
+      beam.className = 'laser-beam';
+      const dx = ex - cx, dy = ey - cy;
+      const dist = Math.sqrt(dx*dx+dy*dy);
+      const deg  = Math.atan2(dy,dx) * 180 / Math.PI;
+      beam.style.cssText = `
+        left:${cx}px; top:${cy}px;
+        width:${dist}px;
+        color: #3fdc6e;
+        background: linear-gradient(to right, #3fdc6e, rgba(63,220,110,0));
+        transform: rotate(${deg}deg);
+      `;
+      document.body.appendChild(beam);
+      setTimeout(() => beam.remove(), 400);
+
+      // spawn a burst of ranger particles at cursor
+      for (let j=0; j<6; j++) {
+        const a = Math.random()*Math.PI*2;
+        const s = 1+Math.random()*3;
+        particles.push({
+          type:'ranger', x:cx, y:cy,
+          vx:Math.cos(a)*s, vy:Math.sin(a)*s,
+          life:20+Math.random()*15, maxLife:35,
+          size:2+Math.random()*4,
+          color:`rgba(63,220,110,`
+        });
+      }
+    }, i * 30);
+  });
+}
+
+// ══ PARTICLE DRAW ══
+function drawParticles() {
+  for (let i = particles.length-1; i>=0; i--) {
+    const p = particles[i];
+    p.life--;
+    if (p.life <= 0) { particles.splice(i,1); continue; }
+    p.x += p.vx; p.y += p.vy;
+    const progress = p.life / p.maxLife; // 1→0 as particle ages
+
+    ctx.save();
+    if (p.type === 'flame') {
+      p.vy -= 0.04;   // rise
+      p.vx *= 0.96;
+      const sz = p.size * progress;
+      const grd = ctx.createRadialGradient(p.x,p.y,0, p.x,p.y,sz);
+      grd.addColorStop(0, p.color);
+      grd.addColorStop(1, 'transparent');
+      ctx.globalAlpha = progress * 0.9;
+      ctx.beginPath(); ctx.arc(p.x,p.y,sz,0,Math.PI*2);
+      ctx.fillStyle = grd; ctx.fill();
+
+    } else if (p.type === 'mist') {
+      p.vx *= 0.97; p.vy *= 0.97;
+      const sz = p.size * (1 + (1-progress)*0.8); // expand as fades
+      ctx.globalAlpha = progress * 0.35;
+      const grd = ctx.createRadialGradient(p.x,p.y,0, p.x,p.y,sz);
+      grd.addColorStop(0, p.colorBase + '1)');
+      grd.addColorStop(1, p.colorBase + '0)');
+      ctx.beginPath(); ctx.arc(p.x,p.y,sz,0,Math.PI*2);
+      ctx.fillStyle = grd; ctx.fill();
+
+    } else if (p.type === 'star') {
+      p.vx *= 0.93; p.vy *= 0.93;
+      ctx.globalAlpha = progress * 0.95;
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x,p.y, p.size*progress, 0, Math.PI*2);
+      ctx.fill();
+      // sparkle cross
+      if (p.size > 3) {
+        ctx.strokeStyle = p.color;
+        ctx.lineWidth   = 1;
+        ctx.globalAlpha = progress * 0.5;
+        ctx.beginPath(); ctx.moveTo(p.x-p.size,p.y); ctx.lineTo(p.x+p.size,p.y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(p.x,p.y-p.size); ctx.lineTo(p.x,p.y+p.size); ctx.stroke();
+      }
+
+    } else if (p.type === 'ranger') {
+      p.vx *= 0.9; p.vy *= 0.9;
+      ctx.globalAlpha = progress * 0.85;
+      ctx.fillStyle = p.color + (progress*0.9).toFixed(2) + ')';
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size*progress, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+// ══ MAIN RENDER LOOP ══
+function renderCursor() {
+  ctx.clearRect(0,0, cursorCanvas.width, cursorCanvas.height);
+
+  if (curMode !== 'none') {
+    if (curMode === 'summoner') updateDragon();
+    if (curMode === 'summoner') drawDragon();
+    if (curMode === 'mage') {
+      // continuous ambient mist while moving — lighter trail
+      if (Math.random() < .5) spawnMistParticles(mouseX, mouseY, 1);
+    }
+    if (curMode === 'melee') {
+      // continuous ember drip
+      if (Math.random() < .6) spawnFlameParticles(mouseX, mouseY, 1);
+    }
+  }
+  drawParticles();
+  requestAnimationFrame(renderCursor);
+}
+renderCursor();
+
+const pStars  = document.getElementById('p-stars');
+const pNebula = document.getElementById('p-nebula');
+const pGround = document.getElementById('p-ground');
+
+let lastY       = window.scrollY;
+let velocity    = 0;       // px/frame — positive = scrolling down
+let tiltAngle   = 0;       // current rotateX in degrees
+let rafId       = null;
+
+const TILT_MAX    = 18;    // max tilt degrees (±)
+const TILT_SPEED  = 0.18;  // how fast tilt follows velocity
+const TILT_DECAY  = 0.88;  // how fast tilt returns to 0 when stopped
+const VEL_SCALE   = 0.045; // scroll speed → tilt amount
+
+function updateParallax() {
+  const y    = window.scrollY;
+  const delta = y - lastY;
+  lastY = y;
+
+  // smooth velocity
+  velocity = velocity * 0.7 + delta * 0.3;
+
+  // target tilt: negative rotateX = tilts top toward you (dive in feel on scroll down)
+  const targetTilt = Math.max(-TILT_MAX, Math.min(TILT_MAX, -velocity * VEL_SCALE * 10));
+
+  // lerp toward target
+  tiltAngle += (targetTilt - tiltAngle) * TILT_SPEED;
+
+  // decay toward 0 when nearly still
+  if (Math.abs(velocity) < 0.5) {
+    tiltAngle *= TILT_DECAY;
+  }
+
+  // star & nebula vertical parallax
+  pStars.style.transform  = `translateY(${y * 0.28}px)`;
+  pNebula.style.transform = `translateY(${y * 0.14}px)`;
+
+  // cave terrain: translateY parallax + rotateX tilt + slight horizontal shift based on direction
+  const horizShift = tiltAngle * 0.5; // subtle X shift adds to the 3D feel
+  pGround.style.transform = `translateY(${y * -0.08}px) rotateX(${tiltAngle}deg) translateX(${horizShift}px)`;
+
+  rafId = requestAnimationFrame(updateParallax);
+}
+
+// keep loop alive even between scroll events for smooth decay
+rafId = requestAnimationFrame(updateParallax);
+
+// ── Scroll reveal + stat bars
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add('visible');
+    e.target.querySelectorAll('.bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+// Also trigger bars on section entry (for non-.reveal parents)
+const sectionObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting)
+      e.target.querySelectorAll('.bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('.cs').forEach(s => sectionObs.observe(s));
+
+// ── Weapons reference grid
+const WIKI = 'https://terraria.wiki.gg/wiki/Special:FilePath/';
+const ALL_ITEMS = [
+  // melee
+  { name:'Zenith',            file:'Zenith.png',                color:'var(--melee)' },
+  { name:'Terra Blade',       file:'Terra_Blade.png',           color:'var(--melee)' },
+  { name:'Meowmere',          file:'Meowmere.png',              color:'var(--melee)' },
+  { name:'Solar Flare Helm',  file:'Solar_Flare_Helmet.png',    color:'var(--melee)' },
+  { name:'Solar Flare Chest', file:'Solar_Flare_Breastplate.png',color:'var(--melee)'},
+  { name:'Solar Flare Legs',  file:'Solar_Flare_Leggings.png',  color:'var(--melee)' },
+  { name:'Mechanical Glove',  file:'Mechanical_Glove.png',      color:'var(--melee)' },
+  { name:'Warrior Emblem',    file:'Warrior_Emblem.png',        color:'var(--melee)' },
+  // ranger
+  { name:'Phantasm',          file:'Phantasm.png',              color:'var(--ranger)' },
+  { name:'Vortex Beater',     file:'Vortex_Beater.png',         color:'var(--ranger)' },
+  { name:'Shroomite Headgear',file:'Shroomite_Headgear.png',    color:'var(--ranger)' },
+  { name:'Endless Quiver',    file:'Endless_Quiver.png',        color:'var(--ranger)' },
+  { name:'Magic Quiver',      file:'Magic_Quiver.png',          color:'var(--ranger)' },
+  { name:'Ranger Emblem',     file:'Ranger_Emblem.png',         color:'var(--ranger)' },
+  // mage
+  { name:'Last Prism',        file:'Last_Prism.png',            color:'var(--mage)' },
+  { name:'Nebula Blaze',      file:'Nebula_Blaze.png',          color:'var(--mage)' },
+  { name:'Nebula Helmet',     file:'Nebula_Helmet.png',         color:'var(--mage)' },
+  { name:'Mana Cloak',        file:'Mana_Cloak.png',            color:'var(--mage)' },
+  { name:'Celestial Emblem',  file:'Celestial_Emblem.png',      color:'var(--mage)' },
+  { name:'Sorcerer Emblem',   file:'Sorcerer_Emblem.png',       color:'var(--mage)' },
+  // summoner
+  { name:'Stardust Dragon Staff',file:'Stardust_Dragon_Staff.png',color:'var(--summoner)'},
+  { name:'Terraprisma',       file:'Terraprisma.png',           color:'var(--summoner)' },
+  { name:'Stardust Helmet',   file:'Stardust_Helmet.png',       color:'var(--summoner)' },
+  { name:'Durendal',          file:'Durendal.png',              color:'var(--summoner)' },
+  { name:'Papyrus Scarab',    file:'Papyrus_Scarab.png',        color:'var(--summoner)' },
+  { name:'Summoner Emblem',   file:'Summoner_Emblem.png',       color:'var(--summoner)' },
+];
+const grid = document.getElementById('wgrid');
+ALL_ITEMS.forEach(item => {
+  const div = document.createElement('div');
+  div.className = 'witem';
+  div.style.setProperty('--hc', item.color);
+  div.innerHTML = `<img src="${WIKI}${item.file}" alt="${item.name}" loading="lazy"><span class="tip">${item.name}</span>`;
+  div.addEventListener('mouseenter', () => { div.style.borderColor = item.color; });
+  div.addEventListener('mouseleave', () => { div.style.borderColor = ''; });
+  grid.appendChild(div);
+});
+
+// ══════════════════════════════════════════════════════════════════
+//  BOSS BESTIARY — scroll reveal, HP bars, spine tracker
+// ══════════════════════════════════════════════════════════════════
+const bossCards   = document.querySelectorAll('.boss-card');
+const spineBar    = document.getElementById('spineBar');
+const spineName   = document.getElementById('spineName');
+const bossSection = document.getElementById('bosses');
+
+// ── Intersection Observer: animate card in + trigger HP bar
+const bossObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const card = entry.target;
+    card.classList.add('boss-visible');
+    // animate HP bar after card slides in
+    setTimeout(() => {
+      card.querySelectorAll('.boss-hp-fill').forEach(bar => {
+        bar.style.width = bar.dataset.w + '%';
+      });
+    }, 400);
+    // set arena glow color
+    const color = getComputedStyle(card).getPropertyValue('--boss-color').trim();
+    const arena = card.querySelector('.boss-arena');
+    if (arena) arena.style.setProperty('--glow', color);
+    const arenaAfter = card.querySelector('.boss-arena');
+    if (arenaAfter) arenaAfter.style.cssText += `; --glow:${color}`;
+  });
+}, { threshold: 0.18 });
+
+bossCards.forEach(card => bossObserver.observe(card));
+
+// ── Spine progress bar: tracks scroll position through boss section
+function updateSpine() {
+  if (!bossSection) return;
+  const secRect  = bossSection.getBoundingClientRect();
+  const secH     = bossSection.offsetHeight;
+  const viewH    = window.innerHeight;
+
+  // progress 0→1 as section scrolls through viewport
+  const progress = Math.max(0, Math.min(1,
+    (-secRect.top) / (secH - viewH)
+  ));
+
+  // find which boss is most centred in viewport
+  let activeBoss  = null;
+  let activeColor = '#ffd700';
+  let closestDist = Infinity;
+
+  bossCards.forEach(card => {
+    const r    = card.getBoundingClientRect();
+    const mid  = r.top + r.height / 2;
+    const dist = Math.abs(mid - viewH / 2);
+    if (dist < closestDist) {
+      closestDist = dist;
+      activeBoss  = card.dataset.boss;
+      activeColor = getComputedStyle(card).getPropertyValue('--boss-color').trim() || '#ffd700';
+    }
+  });
+
+  spineBar.style.width      = (progress * 100).toFixed(1) + '%';
+  spineBar.style.background = activeColor;
+  spineBar.style.boxShadow  = `0 0 8px ${activeColor}`;
+  if (activeBoss) spineName.textContent = activeBoss;
+
+  // pulse the active boss sprite when centered
+  bossCards.forEach(card => {
+    const r      = card.getBoundingClientRect();
+    const mid    = r.top + r.height / 2;
+    const onscr  = mid > 0 && mid < viewH;
+    const sprite = card.querySelector('.boss-sprite');
+    const arena  = card.querySelector('.boss-arena');
+    if (!sprite || !arena) return;
+    const isActive = card.dataset.boss === activeBoss;
+
+    if (isActive && onscr) {
+      const bossColor = getComputedStyle(card).getPropertyValue('--boss-color').trim();
+      sprite.style.filter = `drop-shadow(0 0 18px ${bossColor}) drop-shadow(0 0 6px ${bossColor})`;
+      arena.style.boxShadow = `inset 0 0 40px rgba(0,0,0,.4), 0 0 20px ${bossColor}33`;
+    } else {
+      sprite.style.filter = `drop-shadow(0 0 8px var(--boss-color, #fff))`;
+      arena.style.boxShadow = '';
+    }
+  });
+}
+
+window.addEventListener('scroll', updateSpine, { passive: true });
+updateSpine(); // initial call
+
+// ── Parallax depth effect on boss arenas as they scroll past
+function bossDriftUpdate() {
+  bossCards.forEach((card, i) => {
+    const r        = card.getBoundingClientRect();
+    const viewH    = window.innerHeight;
+    // normalised position: 0 = entering bottom, 0.5 = centred, 1 = leaving top
+    const norm     = 1 - (r.top + r.height * 0.5) / viewH;
+    const drift    = (norm - 0.5) * 22; // px drift
+    const arena    = card.querySelector('.boss-arena');
+    const sprite   = card.querySelector('.boss-sprite');
+    if (arena)  arena.style.transform  = `translateY(${drift * 0.3}px)`;
+    if (sprite) sprite.style.transform = `translateY(${drift * -0.8}px)`;
+  });
+  requestAnimationFrame(bossDriftUpdate);
+}
+bossDriftUpdate();
+
+// ── Extra: random ambient particle sparks on the active boss arena
+const bossParticleCanvas = document.createElement('canvas');
+bossParticleCanvas.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:49;';
+document.body.appendChild(bossParticleCanvas);
+const bCtx = bossParticleCanvas.getContext('2d');
+let bossParticles = [];
+
+function resizeBossCanvas() {
+  bossParticleCanvas.width  = window.innerWidth;
+  bossParticleCanvas.height = window.innerHeight;
+}
+resizeBossCanvas();
+window.addEventListener('resize', resizeBossCanvas);
+
+function spawnBossAmbient() {
+  // find the boss card that's most visible in viewport
+  let bestCard = null, bestScore = -Infinity;
+  bossCards.forEach(card => {
+    const r     = card.getBoundingClientRect();
+    const viewH = window.innerHeight;
+    const score = Math.min(r.bottom, viewH) - Math.max(r.top, 0);
+    if (score > bestScore) { bestScore = score; bestCard = card; }
+  });
+  if (!bestCard || bestScore < 50) return;
+
+  const arena = bestCard.querySelector('.boss-arena');
+  if (!arena) return;
+  const ar    = arena.getBoundingClientRect();
+  const color = getComputedStyle(bestCard).getPropertyValue('--boss-color').trim() || '#ffffff';
+
+  if (Math.random() < 0.35) {
+    bossParticles.push({
+      x:    ar.left + Math.random() * ar.width,
+      y:    ar.top  + ar.height * (0.3 + Math.random() * 0.6),
+      vx:   (Math.random() - 0.5) * 1.2,
+      vy:   -(0.4 + Math.random() * 1.8),
+      life: 40 + Math.random() * 30,
+      maxL: 70,
+      size: 1.5 + Math.random() * 3,
+      color
+    });
+  }
+}
+
+function renderBossParticles() {
+  bCtx.clearRect(0, 0, bossParticleCanvas.width, bossParticleCanvas.height);
+  spawnBossAmbient();
+
+  for (let i = bossParticles.length - 1; i >= 0; i--) {
+    const p = bossParticles[i];
+    p.life--;
+    if (p.life <= 0) { bossParticles.splice(i, 1); continue; }
+    p.x  += p.vx;
+    p.y  += p.vy;
+    p.vy *= 0.98;
+    p.vx *= 0.97;
+
+    const alpha = (p.life / p.maxL) * 0.8;
+    const sz    = p.size * (p.life / p.maxL);
+
+    bCtx.save();
+    bCtx.globalAlpha = alpha;
+    // glow
+    const grd = bCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, sz * 2.5);
+    grd.addColorStop(0, p.color);
+    grd.addColorStop(1, 'transparent');
+    bCtx.beginPath();
+    bCtx.arc(p.x, p.y, sz * 2.5, 0, Math.PI * 2);
+    bCtx.fillStyle = grd;
+    bCtx.fill();
+    // core dot
+    bCtx.beginPath();
+    bCtx.arc(p.x, p.y, sz * 0.6, 0, Math.PI * 2);
+    bCtx.fillStyle = '#fff';
+    bCtx.globalAlpha = alpha * 0.9;
+    bCtx.fill();
+    bCtx.restore();
+  }
+  requestAnimationFrame(renderBossParticles);
+}
+renderBossParticles();
+</script>
+</body>
+</html>
